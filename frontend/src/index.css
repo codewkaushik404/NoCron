@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+  position: relative;
+}
+
+/* Paper grain noise layer */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.13  0 0 0 0 0.14  0 0 0 0 0.12  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Dotted grid used by the canvas surface */
+.grid-surface {
+  background-color: #EFECE2;
+  background-image:
+    radial-gradient(rgba(40, 86, 127, 0.2) 0.7px, transparent 0.7px),
+    linear-gradient(rgba(90, 74, 128, 0.035) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+}
+
+/* React Flow theme overrides */
+.react-flow__attribution {
+  display: none;
+}
+
+.react-flow__controls {
+  border: 1px solid theme("colors.line");
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(32, 36, 42, 0.04);
+}
+
+.react-flow__controls-button {
+  background: theme("colors.panel");
+  border-bottom: 1px solid theme("colors.line");
+  color: theme("colors.ink.DEFAULT");
+}
+
+.react-flow__controls-button:hover {
+  background: theme("colors.raised");
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: theme("colors.cyan.DEFAULT");
+}
+
+.react-flow__handle {
+  border: none;
+}
+
+/* Thin scrollbars */
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  @apply bg-line rounded-full;
+}
+
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid #28567f;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
