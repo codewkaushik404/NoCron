@@ -1,7 +1,7 @@
 import { catalogByType, NODE_KIND } from "./nodeCatalog.js";
 
 const requiredFields = {
-  webhookTrigger: ["path"],
+  webhookTrigger: [],
   scheduleTrigger: ["expression"],
   branch: ["variable", "value"],
   wait: ["seconds"],

@@ -24,7 +24,7 @@ export const nodeCatalog = [
   {
     type: "webhookTrigger",
     kind: NODE_KIND.TRIGGER,
-    label: "Incoming Webhook",
+    label: "Webhook Trigger",
     service: null,
     icon: Webhook,
     accent: "cyan",

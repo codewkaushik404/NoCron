@@ -1,32 +1,42 @@
 import { catalogByType, NODE_KIND } from "./nodeCatalog.js";
 
 /**
- * Turns the live graph into (a) the JSON payload "Deploy Workflow" sends to
- * the Express API and (b) a simplified AWS States Language document for the
+ * Turns the live graph into 
+ * (a) the JSON payload "Deploy Workflow" sends to
+ * the Express API 
+ * (b) a simplified AWS States Language document for the
  * Step Functions preview tab. Both read the same {meta, nodes, edges} shape
  * the Recoil store already holds, so the inspector tabs and the deploy hook
  * share one source of truth instead of formatting JSON inline in components.
  */
 
-export function buildDeployPayload({ meta, nodes, edges }) {
-  const webhookNode = nodes.find((node) => node.type === "webhookTrigger");
+export function buildDeployPayload({ meta, nodes, edges, isActive }) {
+  /*
+  const webhookNode = nodes.find(
+    (node) => node.type === "webhookTrigger"
+  );
 
+  const endpointPath = webhookNode ? webhookNode.data?.hookId : null;
+  */
+ 
   return {
-    workflowId: meta.id ?? "unsaved",
-    workflowName: meta.name,
-    version: meta.version,
-    deployedAt: new Date().toISOString(),
-    awsAccountTarget: "arn:aws:iam::123456789012:role/NoCronExecutionRole",
-    endpointPath: webhookNode ? webhookNode.data.path : null,
-    triggers: nodes
-      .filter((node) => catalogByType[node.type]?.kind === NODE_KIND.TRIGGER)
-      .map((node) => ({ id: node.id, type: node.type, config: node.data })),
-    nodes: nodes.map((node) => ({ id: node.id, type: node.type, data: node.data })),
-    edges: edges.map((edge) => ({
-      source: edge.source,
-      target: edge.target,
-      sourceHandle: edge.sourceHandle ?? null,
-    })),
+    is_active: isActive,
+    user_id: meta?.user_id ?? null,
+    node_config: {
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: node.data,
+      })),
+
+      edges: edges.map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        dest: edge.target,
+        sourceHandle: edge.sourceHandle ?? null,
+      })),
+    },
   };
 }
 
@@ -78,13 +88,14 @@ export function buildStateMachine({ nodes, edges }) {
           Type: "Task",
           Resource:
             node.type === "sendEmail"
-              ? "arn:aws:states:::aws-sdk:sesv2:sendEmail"
-              : "arn:aws:states:::lambda:invoke",
+              ? "AWS sendEmail"
+              : undefined,
           Parameters: node.data,
           Next: next ? stateName(byId[next.target]) : undefined,
           End: !next,
         };
       }
+
     });
 
   const firstEdge = trigger ? outgoing(trigger.id) : null;
@@ -94,4 +105,24 @@ export function buildStateMachine({ nodes, edges }) {
     StartAt: firstEdge ? stateName(byId[firstEdge.target]) : null,
     States: states,
   };
+}
+
+export function getExecutionOrder({ nodes, edges }) {
+  const machine = buildStateMachine({ nodes, edges });
+  const byName = Object.fromEntries(
+    nodes.map((node) => [`${node.type}_${node.id.replace("node-", "")}`, node])
+  );
+  const order = [];
+  let next = machine.StartAt;
+  const visited = new Set();
+
+  while (next && !visited.has(next) && byName[next]) {
+    visited.add(next);
+    const node = byName[next];
+    order.push(node);
+    const outgoing = edges.find((edge) => edge.source === node.id);
+    next = outgoing ? `${byName[outgoing.target]?.type}_${outgoing.target.replace("node-", "")}` : null;
+  }
+
+  return order;
 }
