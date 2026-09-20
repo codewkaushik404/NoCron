@@ -37,11 +37,11 @@ export default function NodeCard({ node, selected, onSelect, onDelete }) {
         </button>
       </div>
 
-      <span
-        className={`mt-3 inline-block rounded px-2 py-1 font-mono text-[10px] ${accent.chip}`}
-      >
-        {entry.service}
-      </span>
+      {entry.service != null && (
+          <span className={`mt-3 inline-block rounded px-2 py-1 font-mono text-[10px] ${accent.chip}`}>
+            {entry.service}
+          </span>
+      )}
 
       {summaryValue !== undefined ? (
         <p className="mt-2 truncate rounded-lg border border-line bg-canvas/70 px-2.5 py-2 font-mono text-[11px] text-ink-soft">

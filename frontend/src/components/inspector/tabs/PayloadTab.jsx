@@ -9,6 +9,6 @@ export default function PayloadTab() {
   const nodes = useRecoilValue(nodesState);
   const edges = useRecoilValue(edgesState);
 
-  const payload = buildDeployPayload({ meta, nodes, edges });
+  const payload = buildDeployPayload({ meta, nodes, edges, isActive: meta.isActive });
   return <CodeBlock value={JSON.stringify(payload, null, 2)} />;
 }

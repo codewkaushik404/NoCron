@@ -20,11 +20,10 @@ export default function StatusBar() {
           className="flex items-center gap-2 rounded px-2 py-1 hover:bg-raised"
         >
           <span
-            className={`h-2 w-2 rounded-full ${meta.active ? "bg-emerald-400" : "bg-ink-faint"}`}
+            className={`h-2 w-2 rounded-full ${meta.isActive ? "bg-emerald-400" : "bg-ink-faint"}`}
           />
-          {meta.active ? "Active" : "Paused"}
+          {meta.isActive ? "Active" : "Inactive"}
         </button>
-        <span className="text-cyan">AWS Region: {meta.region}</span>
       </div>
     </footer>
   );

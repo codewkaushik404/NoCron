@@ -31,7 +31,9 @@ export default function DeployBanner() {
             </ul>
           </>
         ) : (
-          <p className="font-semibold">Workflow deployed. It's live and listening.</p>
+          <p className="font-semibold">
+            {status.message || "Workflow deployed. It's live and listening."}
+          </p>
         )}
       </div>
 

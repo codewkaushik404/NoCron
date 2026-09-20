@@ -81,7 +81,7 @@ export default function InspectorPanel({ onClose }) {
             onClick={() => setIsOutputOpen(true)}
             className="flex h-10 shrink-0 items-center justify-between border-t border-line px-3 text-ink-faint hover:text-ink-soft"
           >
-            <span className="text-[11px] font-semibold">
+            <span className="text-[16px] font-bold">
               Output
             </span>
 
