@@ -24,13 +24,10 @@ export const fieldSchemas = {
   ],
   webhookTrigger: [
     { key: "name", label: "Node name", control: "text" },
-    { key: "path", label: "Path", control: "text", mono: true, required: true },
-    { key: "method", label: "Method", control: "select", options: ["GET", "POST", "PUT", "DELETE"] },
-    { key: "auth", label: "Auth", control: "select", options: ["None", "API Key", "IAM"] },
   ],
   branch: [
     { key: "name", label: "Node name", control: "text" },
-    { key: "variable", label: "Variable", control: "text", mono: true, required: true, hint: "JSONPath into the incoming payload." },
+    { key: "variable", label: "Variable", control: "text", mono: true, required: true, hint: "Enter the field name from the incoming webhook data." },
     {
       key: "operator",
       label: "Operator",

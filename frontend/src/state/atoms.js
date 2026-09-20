@@ -9,7 +9,6 @@ import { atom, selector } from "recoil";
 export const workflowMetaState = atom({
   key: "workflowMeta",
   default: {
-    id: null,
     name: "No-Cron Automated Execution Flow",
     version: "1.0.0",
     region: "us-east-1",
