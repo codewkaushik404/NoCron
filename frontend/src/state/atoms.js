@@ -9,10 +9,9 @@ import { atom, selector } from "recoil";
 export const workflowMetaState = atom({
   key: "workflowMeta",
   default: {
-    name: "No-Cron Automated Execution Flow",
-    version: "1.0.0",
+    name: "Workflow-Name",
     region: "us-east-1",
-    active: false,
+    isActive: false,
   },
 });
 
@@ -40,7 +39,12 @@ export const inspectorTabState = atom({
 /** Lifecycle of the last "Deploy Workflow" click: idle | deploying | success | error. */
 export const deployStatusState = atom({
   key: "deployStatus",
-  default: { phase: "idle", errors: [] },
+  default: { phase: "idle", errors: [], message: null },
+});
+
+export const executionLogsState = atom({
+  key: "executionLogs",
+  default: [],
 });
 
 export const selectedNodeState = selector({

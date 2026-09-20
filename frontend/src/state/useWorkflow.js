@@ -121,7 +121,7 @@ export function useWorkflow() {
   );
 
   const toggleActive = useCallback(
-    () => setMeta((prev) => ({ ...prev, active: !prev.active })),
+    () => setMeta((prev) => ({ ...prev, isActive: !prev.isActive })),
     [setMeta]
   );
 
