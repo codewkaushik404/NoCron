@@ -163,7 +163,7 @@ function EmptyCanvas() {
         <MousePointerClick size={28} className="mx-auto text-ink-faint" />
         <p className="mt-3 text-sm text-ink-soft">Start with a trigger</p>
         <p className="mt-1 text-xs text-ink-faint">
-          Pick a webhook or a schedule from the left to begin the flow.
+          Pick a webhook or a schedule from the left and setup your workflow.
         </p>
       </div>
     </div>

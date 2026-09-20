@@ -10,7 +10,11 @@ export default function ConfigTab({ node }) {
 
   return (
     <form className="space-y-4 px-5 py-5" onSubmit={(event) => event.preventDefault()}>
-      <p className="font-mono text-[11px] text-ink-faint">{catalogByType[node.type]?.service}</p>
+      {catalogByType[node.type]?.service != null && (
+        <p className="font-mono text-[11px] text-ink-faint">
+          AWS Service : {catalogByType[node.type].service}
+        </p>
+      )}
 
       {node.type === "webhookTrigger" && node.data.hookId ? (
         <WebhookUrlField hookId={node.data.hookId} />

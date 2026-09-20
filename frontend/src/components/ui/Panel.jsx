@@ -1,10 +1,3 @@
-/**
- * Shared chrome for the left library and right inspector columns.
- * `scroll` (default true) wraps children in a single scrolling region, for
- * panels with one homogeneous list. Pass `scroll={false}` when the panel
- * needs to manage more than one scrollable region itself (the inspector's
- * node fields vs. its output tabs).
- */
 export default function Panel({
   title,
   subtitle,

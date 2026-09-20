@@ -10,7 +10,6 @@ export default function NodeLibrary({ onClose }) {
   return (
     <Panel
       title="Workflow components"
-      subtitle="Click a block to drop it on the canvas, or drag it where you want it."
       onClose={onClose}
       closeIcon={<PanelLeftClose size={16} />}
       className="w-[290px] shrink-0 border-r border-line"
