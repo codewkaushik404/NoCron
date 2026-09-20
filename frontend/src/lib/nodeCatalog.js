@@ -75,7 +75,6 @@ export const nodeCatalog = [
       name: "Send Email",
       recipient: "user@example.com",
       subject: "Notification",
-      body: "Send an mail to the receipient with body",
     },
   },
 

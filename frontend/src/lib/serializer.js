@@ -11,14 +11,7 @@ import { catalogByType, NODE_KIND } from "./nodeCatalog.js";
  */
 
 export function buildDeployPayload({ meta, nodes, edges, isActive }) {
-  /*
-  const webhookNode = nodes.find(
-    (node) => node.type === "webhookTrigger"
-  );
-
-  const endpointPath = webhookNode ? webhookNode.data?.hookId : null;
-  */
- 
+  
   return {
     is_active: isActive,
     user_id: meta?.user_id ?? null,
@@ -88,7 +81,7 @@ export function buildStateMachine({ nodes, edges }) {
           Type: "Task",
           Resource:
             node.type === "sendEmail"
-              ? "AWS sendEmail"
+              ? "arn:aws:states:::aws-sdk:sesv2:sendEmail"
               : undefined,
           Parameters: node.data,
           Next: next ? stateName(byId[next.target]) : undefined,

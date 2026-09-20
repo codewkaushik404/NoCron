@@ -43,8 +43,7 @@ export const fieldSchemas = {
   sendEmail: [
     { key: "name", label: "Node name", control: "text" },
     { key: "recipient", label: "Recipient", control: "text", mono: true, required: true },
-    { key: "subject", label: "Subject", control: "text" },
-    { key: "body", label: "Message body", control: "textarea" },
+    { key: "subject", label: "Subject", control: "text" }
   ],
   slackNotify: [
     { key: "name", label: "Node name", control: "text" },
