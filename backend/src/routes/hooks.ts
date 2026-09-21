@@ -38,19 +38,15 @@ router.post("/:path", async (req, res) => {
                 message: "Workflow is not active",
             });
         }
-
-        const obj = workflow.node_config.nodes.find((node: any) => node.type === "sendEmail");
-        const {recipient, subject} = obj.data;
         
         // 4. Start the Step Functions execution
         const execution = await stepFunctions.send(
             new StartExecutionCommand({
                 stateMachineArn: process.env.STATE_MACHINE_ARN!,
-                input: JSON.stringify({recipient, subject, body: req.body}),
+                input: JSON.stringify(req.body),
             })
         );
 
-        console.log("execution done");
         // 5. Return execution information
         return res.status(202).json({
             message: "Workflow execution started"
