@@ -7,6 +7,7 @@ export default function StatusBar() {
   const meta = useRecoilValue(workflowMetaState);
   const { toggleActive } = useWorkflow();
 
+  
   return (
     <footer className="flex shrink-0 items-center justify-between border-t border-line bg-panel px-5 py-2 font-mono text-[11px] text-ink-faint">
       <span>

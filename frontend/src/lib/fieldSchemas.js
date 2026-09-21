@@ -25,15 +25,13 @@ export const fieldSchemas = {
   webhookTrigger: [
     { key: "name", label: "Node name", control: "text" },
   ],
+  tallyTrigger: [
+    { key: "name", label: "Node name", control: "text" },
+  ],
   branch: [
     { key: "name", label: "Node name", control: "text" },
-    { key: "variable", label: "Variable", control: "text", mono: true, required: true, hint: "Enter the field name from the incoming webhook data." },
-    {
-      key: "operator",
-      label: "Operator",
-      control: "select",
-      options: ["equals", "notEquals", "greaterThan", "lessThan", "contains"],
-    },
+    { key: "variable", label: "Field", control: "tallyField", required: true },
+    { key: "operator", label: "Operator", control: "select", options: ["equals", "notEquals", "greaterThan", "lessThan", "contains"] },
     { key: "value", label: "Value", control: "text", mono: true, required: true },
   ],
   wait: [
@@ -49,5 +47,8 @@ export const fieldSchemas = {
     { key: "name", label: "Node name", control: "text" },
     { key: "channel", label: "Channel", control: "text", mono: true, required: true },
     { key: "message", label: "Message", control: "textarea" },
+  ],
+  doNothing: [
+    { key: "name", label: "Node name", control: "text" },
   ],
 };

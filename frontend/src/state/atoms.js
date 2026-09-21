@@ -63,3 +63,16 @@ export const graphStatsState = selector({
     edgeCount: get(edgesState).length,
   }),
 });
+
+export const tallyConnectionState = atom({
+  key: "tallyConnectionState",
+  default: {
+    connection_id: null,
+    forms: [],
+  },
+});
+
+export const tallyFormFieldsState = atom({
+  key: "tallyFormFieldsState",
+  default: {},
+});

@@ -75,7 +75,7 @@ export function useDeploy() {
           }
 
           const baseUrl = backendUrl.replace(/\/+$/, "");
-          const deployUrl = `${baseUrl}/${encodeURIComponent(hookId)}`;
+          const deployUrl = `${baseUrl}/deploy/${encodeURIComponent(hookId)}`;
 
           const response = await fetch(deployUrl, {
             method: "POST",

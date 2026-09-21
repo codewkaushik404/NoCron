@@ -1,4 +1,6 @@
-import { Clock, Webhook, GitBranch, Timer, Mail, MessageSquare } from "lucide-react";
+import { Clock, Webhook, GitBranch, 
+  Timer, Mail, MessageSquare, FormInput, Ban 
+} from "lucide-react";
 
 export const NODE_KIND = {
   TRIGGER: "trigger",
@@ -31,6 +33,21 @@ export const nodeCatalog = [
     summaryKey: null,
     defaults: {
       name: "User Webhook"
+    },
+  },
+  {
+    type: "tallyTrigger",
+    kind: NODE_KIND.TRIGGER,
+    label: "Tally Form",
+    service: "Tally",
+    icon: FormInput,
+    accent: "cyan",
+    summaryKey: "form_name",
+    defaults: {
+      name: "Tally Form Trigger",
+      connection_id: "",
+      form_id: "",
+      form_name: "",
     },
   },
   {
@@ -90,6 +107,18 @@ export const nodeCatalog = [
       name: "Slack Notification",
       channel: "#general",
       message: "Something just happened!!",
+    },
+  },
+  {
+    type: "doNothing",
+    kind: NODE_KIND.ACTION,
+    label: "Do Nothing",
+    service: "Workflow Control",
+    icon: Ban,
+    accent: "amber",
+    summaryKey: null,
+    defaults: {
+      name: "Do Nothing",
     },
   },
 ];
