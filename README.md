@@ -1,6 +1,6 @@
 # NoCron
 
-**DEPLOYMENT LINK: https://nocron-wemakedevs.vercel.app/
+DEPLOYMENT LINK: https://nocron-wemakedevs.vercel.app/
 
 NoCron is a visual workflow automation platform designed to simplify task automation for users who may not have extensive technical knowledge.
 
