@@ -7,4 +7,5 @@ const client = new DynamoDBClient({
 
 export const dynamoDB = DynamoDBDocumentClient.from(client);
 
-export const WORKFLOW_TABLE = process.env.DYNAMODB_TABLE_NAME;
+export const WORKFLOW_TABLE = process.env.WORKFLOWS;
+export const TALLY_CONNECTIONS_TABLE = process.env.TALLYCONNECTIONS;
