@@ -6,7 +6,8 @@ const requiredFields = {
   branch: ["variable", "value"],
   wait: ["seconds"],
   sendEmail: ["recipient"],
-  slackNotify: ["channel"],
+  slackNotify: ["webhook_url"],
+  discordNotify: ["webhook_url"]
 };
 
 /**

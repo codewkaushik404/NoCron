@@ -45,7 +45,12 @@ export const fieldSchemas = {
   ],
   slackNotify: [
     { key: "name", label: "Node name", control: "text" },
-    { key: "channel", label: "Channel", control: "text", mono: true, required: true },
+    { key: "webhook_url", label: "Webhook URL", control: "text", mono: true, required: true },
+    { key: "message", label: "Message", control: "textarea" },
+  ],
+  discordNotify: [
+    { key: "name", label: "Node name", control: "text" },
+    { key: "webhook_url", label: "Webhook URL", control: "text", mono: true, required: true },
     { key: "message", label: "Message", control: "textarea" },
   ],
   doNothing: [

@@ -30,7 +30,8 @@ export default function ConfigTab({ node }) {
         </p>
       )}
 
-      {node.type === "webhookTrigger" && node.data.hookId ? (
+      {(node.type === "webhookTrigger" || node.type === "tallyTrigger") &&
+      node.data.hookId ? (
         <WebhookUrlField hookId={node.data.hookId} />
       ) : null}
 

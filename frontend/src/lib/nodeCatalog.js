@@ -99,16 +99,32 @@ export const nodeCatalog = [
     type: "slackNotify",
     kind: NODE_KIND.ACTION,
     label: "Slack Notification",
-    service: "Slack API",
+    service: "Slack",
     icon: MessageSquare,
     accent: "amber",
-    summaryKey: "channel",
+    summaryKey: "message",
     defaults: {
-      name: "Slack Notification",
-      channel: "#general",
-      message: "Something just happened!!",
+      name: "Send Slack Notification",
+      webhook_url: "",
+      message: "A workflow event has occurred.",
     },
   },
+
+  {
+    type: "discordNotify",
+    kind: NODE_KIND.ACTION,
+    label: "Discord Notification",
+    service: "Discord",
+    icon: MessageSquare,
+    accent: "amber",
+    summaryKey: "message",
+    defaults: {
+      name: "Send Discord Notification",
+      webhook_url: "",
+      message: "A workflow event has occurred.",
+    },
+  },
+
   {
     type: "doNothing",
     kind: NODE_KIND.ACTION,
