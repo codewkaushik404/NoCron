@@ -12,7 +12,7 @@ import {
   buildDeployPayload,
   getExecutionOrder,
 } from "../lib/serializer.js";
-import { makeHookId } from "../lib/ids.js";
+import { getWorkflowHookId, makeHookId } from "../lib/ids.js";
 
 export function useDeploy() {
   const status = useRecoilValue(deployStatusState);
@@ -59,11 +59,10 @@ export function useDeploy() {
 
         try {
           const webhookNode = nodes.find(
-            (node) => node.type === "webhookTrigger"
+            (node) =>
+              node.type === "webhookTrigger" || node.type === "tallyTrigger"
           );
-          const hookId = webhookNode
-            ? webhookNode.data?.hookId?.trim()
-            : makeHookId();
+          const hookId = getWorkflowHookId(nodes) ?? (webhookNode ? null : makeHookId());
 
           if (webhookNode && !hookId) {
             set(deployStatusState, {
@@ -87,7 +86,7 @@ export function useDeploy() {
                 meta,
                 nodes,
                 edges,
-                isActive: meta.isActive,
+                isActive: true,
               })
             ),
           });
@@ -113,6 +112,7 @@ export function useDeploy() {
             errors: [],
             message: "Workflow deployed successfully.",
           });
+          
         } catch (error) {
           set(deployStatusState, {
             phase: "error",

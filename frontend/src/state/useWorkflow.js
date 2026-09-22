@@ -6,9 +6,15 @@ import {
   nodesState,
   selectedNodeIdState,
   workflowMetaState,
+  deployStatusState,
 } from "./atoms.js";
 import { catalogByType } from "../lib/nodeCatalog.js";
-import { makeHookId, makeNodeId, makeEdgeId } from "../lib/ids.js";
+import {
+  getWorkflowHookId,
+  makeHookId,
+  makeNodeId,
+  makeEdgeId,
+} from "../lib/ids.js";
 
 /**
  * Every mutation to the graph goes through this hook. Components never call
@@ -39,7 +45,7 @@ export function useWorkflow() {
         };
 
         // Webhook blocks mint their public URL on creation, client-side.
-        if (type === "webhookTrigger") {
+        if (type === "webhookTrigger" || type === "tallyTrigger") {
           node.data.hookId = makeHookId();
         }
 
@@ -120,9 +126,67 @@ export function useWorkflow() {
     [setMeta]
   );
 
-  const toggleActive = useCallback(
-    () => setMeta((prev) => ({ ...prev, isActive: !prev.isActive })),
-    [setMeta]
+  const toggleActive = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        const [currentMeta, currentNodes] = await Promise.all([
+          snapshot.getPromise(workflowMetaState),
+          snapshot.getPromise(nodesState),
+        ]);
+
+        try{
+          // Only active → inactive is handled here.
+          if (!currentMeta.isActive) throw new Error("Deploy the workflow to make it active");
+
+          const backendUrl = import.meta.env.VITE_BACKEND_DEPLOY_URL?.trim();
+          const hookId = getWorkflowHookId(currentNodes);
+
+          if (!backendUrl || !hookId) {
+            set(deployStatusState, {
+              phase: "error",
+              errors: ["Deploy the workflow before marking it inactive."],
+              message: null,
+            });
+
+            return;
+          }
+          
+          const response = await fetch(
+            `${backendUrl.replace(/\/+$/, "")}/deploy/${encodeURIComponent(hookId)}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                is_active: false,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            const message = await response.text();
+            throw new Error(message || `Unable to deactivate workflow (${response.status}).`);
+          }
+
+          // Only change frontend status after backend succeeds.
+          set(workflowMetaState, (previous) => ({
+            ...previous,
+            isActive: false,
+          }));
+        } 
+        catch (error) {
+          set(deployStatusState, {
+            phase: "error",
+            errors: [
+              error instanceof Error
+                ? error.message
+                : "Unable to deactivate workflow.",
+            ],
+            message: null,
+          });
+        }
+      }, []
   );
 
   return {

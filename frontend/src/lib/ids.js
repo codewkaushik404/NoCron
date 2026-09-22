@@ -9,3 +9,10 @@ export const makeEdgeId = () => `edge-${uid().slice(0, 6)}`;
 export const makeHookId = () => `wh_${uid().slice(0, 8)}`;
 
 export const hookUrl = (hookId) => `${host_name}/hooks/${hookId}`;
+
+export const getWorkflowHookId = (nodes) =>
+  nodes.find(
+    (node) =>
+      (node.type === "webhookTrigger" || node.type === "tallyTrigger") &&
+      node.data?.hookId
+  )?.data.hookId ?? null;
