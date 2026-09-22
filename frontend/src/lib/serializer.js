@@ -60,7 +60,7 @@ export function buildStateMachine({ nodes, edges }) {
           Type: "Choice",
           Choices: [
             {
-              Variable: `question_${node.data.variable}`,
+              Variable: node.data.variable,
               StringEquals: node.data.value,
               Next: trueEdge ? stateName(byId[trueEdge.target]) : undefined,
             },
