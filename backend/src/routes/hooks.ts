@@ -38,23 +38,29 @@ router.post("/:path", async (req, res) => {
                 message: "Workflow is not active",
             });
         }
-        
-        // 4. Start the Step Functions execution
+
+        // 4. Get this workflow's state machine
+        const stateMachineArn = workflow.state_machine_arn;
+
+        if (!stateMachineArn) {
+            throw new Error("State machine not configured");
+        }
+
+        // 5. Start that specific state machine
         const execution = await stepFunctions.send(
             new StartExecutionCommand({
-                stateMachineArn: process.env.STATE_MACHINE_ARN!,
+                stateMachineArn,
                 input: JSON.stringify(req.body),
             })
         );
 
         // 5. Return execution information
         return res.status(202).json({
-            message: "Workflow execution started"
+            message: "Workflow execution started",
+            executionArn: execution.executionArn
         });
 
     } catch (error) {
-        console.error("Workflow execution error:", error);
-
         return res.status(500).json({
             message: "Failed to start workflow execution",
         });
