@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { workflowSchema } from "../schemas/workflowSchema.js";
-import { PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { dynamoDB, WORKFLOW_TABLE } from "../config/dynamoDB.js";
 import { buildStateMachineDefinition } from "../services/buildStateMachineDefinition.js";
 import { stepFunctions } from "../config/stepFunctions.js";
@@ -9,6 +9,8 @@ import {
   UpdateStateMachineCommand,
   ListStateMachinesCommand,
 } from "@aws-sdk/client-sfn";
+
+import { createOrUpdateScheduler, deleteScheduler } from "../services/deployScheduler.js";
 
 const router = Router();
 
@@ -59,7 +61,7 @@ router.patch("/:hookId", async (req, res) => {
 /** Workflows when deployed come here and get stored in DB */
 router.post("/:path", async (req, res) => {
     try{
-        const endpoint_path = `${req.params.path}`;
+        
         const result = workflowSchema.safeParse(req.body);
 
         if (!result.success) {
@@ -69,7 +71,19 @@ router.post("/:path", async (req, res) => {
             });
         }
 
-        const workflow = result.data
+        const workflow = result.data;
+        const endpoint_path = `${req.params.path}`;
+
+        const existingWorkflowResult = await dynamoDB.send(
+            new GetCommand({
+                TableName: WORKFLOW_TABLE,
+                Key: {
+                    endpoint_path,
+                }
+            })
+        );
+
+        const existingWorkflow = existingWorkflowResult.Item;
 
         const stateMachineDefinition = buildStateMachineDefinition(workflow);
         const definition = JSON.stringify(stateMachineDefinition);
@@ -108,13 +122,32 @@ router.post("/:path", async (req, res) => {
             stateMachineArn = created.stateMachineArn;
         }
 
+        
+        const scheduleTrigger = workflow.node_config.nodes.find((node: any) => node.type === "scheduleTrigger");
+        let schedulerArn: string | undefined;
+
+        if (scheduleTrigger) {
+            const schedulerResult = await createOrUpdateScheduler({
+                workflowPath: req.params.path,
+                stateMachineArn,
+                scheduleTrigger,
+                existingScheduleArn: existingWorkflow?.scheduler_arn,
+            });
+
+            schedulerArn = schedulerResult.scheduleArn;
+        }
+        else if(existingWorkflow?.scheduler_arn){
+            await deleteScheduler(`NoCron-${req.params.path}`);
+        }
+
         await dynamoDB.send(
             new PutCommand({
                 TableName: WORKFLOW_TABLE,
                 Item: {
                     ...workflow,
                     endpoint_path,
-                    state_machine_arn: stateMachineArn
+                    state_machine_arn: stateMachineArn,
+                    ...(schedulerArn ? { scheduler_arn: schedulerArn } : {} ),
                 }
             })
         );    
@@ -122,7 +155,8 @@ router.post("/:path", async (req, res) => {
         res.json({
             message: "Workflow deplpoyed",
             endpoint_path,
-            state_machine_arn: stateMachineArn
+            state_machine_arn: stateMachineArn,
+            ...(schedulerArn ? { scheduler_arn: schedulerArn } : {} )
         });
     }
     catch(err: any){

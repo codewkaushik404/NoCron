@@ -95,7 +95,8 @@ export function buildStateMachineDefinition(workflow: Workflow) {
             if (!trueEdge) throw new Error(`Branch ${node.id} has no true edge`);
             if (!falseEdge) throw new Error(`Branch ${node.id} has no false edge`);
 
-            const variable = node.data.variable;
+            const variable = `question_${node.data.variable}`;
+            console.log(variable);
             const operator = node.data.operator;
             const value = node.data.value;
 
@@ -172,6 +173,64 @@ export function buildStateMachineDefinition(workflow: Workflow) {
             };
 
             if (nextNode) state.Next = nextNode;
+            else state.End = true;
+
+            States[node.id] = state;
+
+            continue;
+        }
+
+        //SLACK NOTIFICATION
+        if (node.type === "slackNotify") {
+            const nextNode = getNextNode(node.id);
+
+            const state: Record<string, any> = {
+                Type: "Task",
+                // HTTP endpoint integration
+                Resource: "arn:aws:states:::lambda:invoke",
+
+                Arguments: {
+                    FunctionName:
+                        process.env.NOTIFICATION_LAMBDA_ARN!,
+
+                    Payload: {
+                        type: "slack",
+                        webhook_url: node.data.webhook_url,
+                        message: node.data.message ?? "",
+                    },
+                },
+            };
+
+            if (nextNode) state.Next = nextNode;
+            else state.End = true;
+            
+            States[node.id] = state;
+
+            continue;
+        }
+
+        // DISCORD NOTIFICATION
+        if (node.type === "discordNotify") {
+
+            const nextNode = getNextNode(node.id);
+            
+            const state: Record<string, any> = {
+                Type: "Task",
+                // HTTP endpoint integration
+                Resource: "arn:aws:states:::lambda:invoke",
+                Arguments: {
+                    FunctionName:
+                        process.env.NOTIFICATION_LAMBDA_ARN!,
+
+                    Payload: {
+                        type: "discord",
+                        webhook_url: node.data.webhook_url,
+                        message: node.data.message ?? "",
+                    },
+                },
+            };
+
+            if (nextNode) state.Next = nextNode; 
             else state.End = true;
 
             States[node.id] = state;
