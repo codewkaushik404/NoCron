@@ -4,6 +4,7 @@ import { workflowMetaState } from "../../state/atoms.js";
 import { useWorkflow } from "../../state/useWorkflow.js";
 import { useDeploy } from "../../state/useDeploy.js";
 import Button from "../ui/Button.jsx";
+import UserMenu from "../auth/UserMenu.jsx";
 
 export default function TopBar() {
   const meta = useRecoilValue(workflowMetaState);
@@ -47,6 +48,8 @@ export default function TopBar() {
         >
           {deploying ? "Deploying…" : "Deploy workflow"}
         </Button>
+        
+        <UserMenu />
       </div>
     </header>
   );
