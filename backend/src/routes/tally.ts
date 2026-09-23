@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import {dynamoDB, TALLY_CONNECTIONS_TABLE } from "../config/dynamoDB.js";
+import { error } from "node:console";
 
 const router = Router();
 const TALLY_API = "https://api.tally.so";
@@ -28,8 +29,13 @@ router.post("/forms", async (req, res) => {
         );
 
         if (!tallyResponse.ok) {
+            const text = await tallyResponse.text();
+
+            console.log("TALLY STATUS:", tallyResponse.status);
+            console.log("TALLY RESPONSE:", text);
             return res.status(401).json({
                 message: "Invalid Tally API key",
+                error: text
             });
         }
 
