@@ -37,6 +37,15 @@ The frontend maintains workflow state such as nodes, edges, workflow metadata, d
 
 The backend validates workflow payloads, stores workflow configurations, and handles deployment/execution-related operations.
 
+### Deployment configuration
+
+Set `VITE_BACKEND_DEPLOY_URL` in the frontend deployment environment to the
+backend's public base URL (without an endpoint path). Set `CORS_ORIGINS` in the
+backend environment to the exact frontend origin(s), comma-separated, including
+the scheme and any non-default port (for example,
+`https://your-app.example,https://www.your-app.example`). The backend requires
+an explicit allowed origin for browser requests that include credentials.
+
 ### AWS Services
 
 * **AWS Step Functions** — orchestrates workflow execution

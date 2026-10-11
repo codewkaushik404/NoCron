@@ -9,8 +9,13 @@ import tallyRouter from "./routes/tally.js";
 const app = express();
 
 const PORT = process.env.PORT || 8000;
+const allowedOrigins = ["http://localhost:5173", "https://no-cron.vercel.app"]
 
-app.use(cors());
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
+}));
+
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
