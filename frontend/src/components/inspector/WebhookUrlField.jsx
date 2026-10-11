@@ -31,6 +31,9 @@ export default function WebhookUrlField({ hookId }) {
           {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
         </button>
       </div>
+      <span className="mt-1 block text-[12px] text-ink-faint">
+        Copy this URL and add it as the webhook URL in Tally or another service.
+      </span>
     </div>
   );
 }

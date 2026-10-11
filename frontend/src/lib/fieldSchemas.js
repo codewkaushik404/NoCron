@@ -23,7 +23,9 @@ export const fieldSchemas = {
     },
   ],
   webhookTrigger: [
-    { key: "name", label: "Node name", control: "text" },
+    {  
+      key: "name", label: "Node name", control: "text" 
+    }
   ],
   tallyTrigger: [
     { key: "name", label: "Node name", control: "text" },

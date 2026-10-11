@@ -18,9 +18,9 @@ export default function App() {
       <Route
         path="/app"
         element={
-          <ProtectedRoute>
+          <>
             <AppShell />
-          </ProtectedRoute>
+          </>
         }
       />
     </Routes>
