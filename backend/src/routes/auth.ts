@@ -19,7 +19,21 @@ router.post("/google", async (req, res) => {
       });
     }
 
-    const profile = await verifyGoogleCredential(result.data.credential);
+    if (!USERS_TABLE) {
+      return res.status(500).json({
+        message:
+          "Google sign-in is not configured: set USERS to the DynamoDB users table name.",
+      });
+    }
+
+    let profile;
+    try {
+      profile = await verifyGoogleCredential(result.data.credential);
+    } catch (error: any) {
+      return res.status(401).json({
+        message: error.message ?? "Failed to verify Google credential",
+      });
+    }
 
     const existing = await dynamoDB.send(
       new GetCommand({
@@ -55,8 +69,8 @@ router.post("/google", async (req, res) => {
 
     return res.json({ user: sessionUser });
   } catch (error: any) {
-    return res.status(401).json({
-      message: error.message ?? "Failed to verify Google credential",
+    return res.status(500).json({
+      message: error.message ?? "Failed to create sign-in session",
     });
   }
 });

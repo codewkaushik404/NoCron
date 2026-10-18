@@ -45,6 +45,10 @@ backend environment to the exact frontend origin(s), comma-separated, including
 the scheme and any non-default port (for example,
 `https://your-app.example,https://www.your-app.example`). The backend requires
 an explicit allowed origin for browser requests that include credentials.
+For Google sign-in, configure the backend's `USERS` environment variable with
+the exact name of the DynamoDB table used to store user profiles. The table must
+exist in the configured AWS region, and the backend's AWS identity needs
+permission to read and write it.
 
 ### AWS Services
 
