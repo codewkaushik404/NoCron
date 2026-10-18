@@ -9,3 +9,4 @@ export const dynamoDB = DynamoDBDocumentClient.from(client);
 
 export const WORKFLOW_TABLE = process.env.WORKFLOWS;
 export const TALLY_CONNECTIONS_TABLE = process.env.TALLYCONNECTIONS;
+export const USERS_TABLE = process.env.USERS;
