@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum STATUS {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ExecutionSTATUS {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+model User {
+  id         String   @id @default(uuid())
+  googleId   String   @unique
+  name       String
+  email      String   @unique
+  avatar_url String?  @default("")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  workflows Workflow[]
+}
+
+model session {
+  sid String @id @db.VarChar(255)
+  sess Json 
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+  @@map("session")
+}
+
+model AvailableTrigger {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  image_url  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  triggers Trigger[]
+}
+
+model Trigger {
+  id   String @id @default(uuid())
+  name String
+
+  trigger_type_id String
+  trigger         AvailableTrigger @relation(fields: [trigger_type_id], references: [id])
+
+  workflow_id String   @unique
+  workflow    Workflow @relation(fields: [workflow_id], references: [id])
+
+  config     Json     @default("{}")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model AvailableAction {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  image_url  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  actions Action[]
+}
+
+model Action {
+  id   String @id @default(uuid())
+  name String
+
+  action_type_id String
+  action         AvailableAction @relation(fields: [action_type_id], references: [id])
+
+  workflow_id String
+  workflow    Workflow @relation(fields: [workflow_id], references: [id])
+
+  config     Json     @default("{}")
+  order      Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([workflow_id, order])
+}
+
+model Workflow {
+  id String @id @default(uuid())
+
+  user_id String
+  user    User @relation(fields: [user_id], references: [id])
+
+  name   String
+  status STATUS @default(DRAFT)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  trigger    Trigger?
+  actions    Action[]
+  executions Execution[]
+}
+
+model Execution {
+  id String @id @default(uuid())
+
+  workflow_id String
+  workflow    Workflow @relation(fields: [workflow_id], references: [id])
+
+  status     ExecutionSTATUS @default(PENDING)
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
+
+  execution_outbox ExecutionOutbox?
+}
+
+model ExecutionOutbox {
+  id String @id @default(uuid())
+
+  execution_id String    @unique
+  execution    Execution @relation(fields: [execution_id], references: [id])
+
+  created_at   DateTime  @default(now())
+}
