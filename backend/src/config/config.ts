@@ -26,6 +26,8 @@ if(!process.env.SMTP_SECURE) throw new Error("SMTP_SECURE is not set in env vari
 if(!process.env.SMTP_USER) throw new Error("SMTP_USER is not set in env variables");
 if(!process.env.SMTP_PASSWORD) throw new Error("SMTP_PASSWORD is not set in env variables");
 
+if(!process.env.FRONTEND_URL) throw new Error("FRONTEND_URL is not set in env variables");
+
 const config = {
     PORT: process.env.PORT,
     SWEEPER_PORT: process.env.SWEEPER_PORT,
@@ -52,6 +54,8 @@ const config = {
 
     SMTP_USER: process.env.SMTP_USER,
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+
+    FRONTEND_URL: process.env.FRONTEND_URL.replace(/\/+$/, "")
 }
 
 export default config;

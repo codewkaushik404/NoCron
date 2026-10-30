@@ -127,15 +127,12 @@ router.post("/publish", asyncHandler(async (req: Request, res: Response) => {
         }
     }));
 
-    await prisma.$transaction(async (tx) => {
+    const workflow = await prisma.$transaction(async (tx) => {
         const workflow = await tx.workflow.create({
             data: {
                 name: data.name,
                 user_id: req.user.id,
                 status: "ACTIVE"
-            },
-            select: {
-                id: true
             }
         })
 
@@ -155,9 +152,11 @@ router.post("/publish", asyncHandler(async (req: Request, res: Response) => {
                 workflow_id: workflow.id
             }))
         })
+
+        return workflow;
     })
 
-    return res.status(201).json(new ApiResponse(201, "New workflow created successfully", null));
+    return res.status(201).json(new ApiResponse(201, "New workflow created successfully", workflow));
 }))
 
 export default router;
