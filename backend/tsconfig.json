@@ -36,5 +36,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["./dist", "./prisma.config.ts"]
 }
