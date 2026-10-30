@@ -37,8 +37,9 @@ app.use(session({
     cookie: {
         maxAge: 30*60*1000, //30min in ms
         httpOnly: true,
-        sameSite: "strict",
-        secure: config.ENVIRONMENT === "prod" ? true : false
+        sameSite: "none",
+        secure: config.ENVIRONMENT === "prod" ? true : false,
+        path: "/"
     }
 }))
 
