@@ -1,7 +1,7 @@
 import express from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import {Pool} from "../node_modules/@types/pg/index.js";
+import { Pool } from "pg";
 import passport from "./config/passport.js";
 import config from "./config/config.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -9,6 +9,7 @@ import hookRoutes from "./routes/hook.routes.js";
 import triggerRoutes from "./routes/trigger.routes.js";
 import actionRoutes from "./routes/action.routes.js";
 import workflowRoutes from "./routes/workflow.routes.js";
+import cors from "cors";
 
 import globalErrorHandler from "./utils/globalErrorHandler.js";
 
@@ -20,6 +21,11 @@ const pool = new Pool({
 });
 
 const pgSessionStore = connectPgSimple(session);
+
+app.use(cors({
+    origin: config.FRONTEND_URL,
+    credentials: true
+}))
 
 app.use(session({
     store: new pgSessionStore({ pool, createTableIfMissing: true}),

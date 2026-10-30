@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
+import config from "../config/config.js";
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.get("/google/callback",
         session: true
     }),
     (req, res) => {
-        return res.json(new ApiResponse(200, "User authenticated successfully", null));
+        return res.redirect(`${config.FRONTEND_URL}/dashboard`);
     }
 )
 
