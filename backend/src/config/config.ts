@@ -1,8 +1,12 @@
 import dotenv from "dotenv";
 import path from "node:path";
+
 dotenv.config({
     path: path.resolve(process.cwd(), ".env")
 });
+
+const environment = (process.env.ENVIRONMENT ?? "").toLowerCase();
+const isProduction = environment === "prod" || environment === "production";
 
 if(!process.env.PORT) throw new Error("PORT is not set in env variables");
 if(!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set in env variables");
@@ -41,6 +45,7 @@ const config = {
 
     SESSION_SECRET: process.env.SESSION_SECRET,
     ENVIRONMENT: process.env.ENVIRONMENT,
+    IS_PROD: isProduction,
 
     CLIENT_ID: process.env.CLIENT_ID,
     CLIENT_SECRET: process.env.CLIENT_SECRET,
