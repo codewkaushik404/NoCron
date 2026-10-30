@@ -1,4 +1,5 @@
 import { useRecoilCallback, useRecoilValue } from "recoil";
+
 import {
   deployStatusState,
   edgesState,
@@ -6,12 +7,24 @@ import {
   workflowMetaState,
 } from "./atoms.js";
 
+import { useAuth } from "./useAuth.js";
 import { validateWorkflow } from "../lib/validator.js";
 import { buildPublishPayload } from "../lib/serializer.js";
-import { apiUrl } from "../lib/apiBase.js";
+import { apiUrl, getApiBase } from "../lib/apiBase.js";
+
+function buildWebhookUrl(userId, workflowId) {
+  const apiBase = getApiBase();
+
+  if (!apiBase || !userId || !workflowId) {
+    return null;
+  }
+
+  return `${apiBase}/api/v1/hooks/catch/${userId}/${workflowId}`;
+}
 
 export function useDeploy() {
   const status = useRecoilValue(deployStatusState);
+  const { user } = useAuth();
 
   const deploy = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -29,6 +42,7 @@ export function useDeploy() {
             phase: "error",
             errors: validation.errors,
             message: null,
+            webhookUrl: null,
           });
 
           return;
@@ -38,6 +52,7 @@ export function useDeploy() {
           phase: "deploying",
           errors: [],
           message: null,
+          webhookUrl: null,
         });
 
         try {
@@ -74,6 +89,8 @@ export function useDeploy() {
             );
           }
 
+          const webhookUrl = buildWebhookUrl(user?.id, workflow.id);
+
           set(workflowMetaState, (previous) => ({
             ...previous,
             name: workflow.name ?? previous.name,
@@ -87,6 +104,7 @@ export function useDeploy() {
             phase: "success",
             errors: [],
             message: "Workflow published successfully.",
+            webhookUrl,
           });
         } catch (error) {
           set(deployStatusState, {
@@ -97,10 +115,11 @@ export function useDeploy() {
                 : "Unable to publish workflow.",
             ],
             message: null,
+            webhookUrl: null,
           });
         }
       },
-    [],
+    [user?.id],
   );
 
   const simulate = useRecoilCallback(
@@ -118,6 +137,7 @@ export function useDeploy() {
             phase: "error",
             errors: validation.errors,
             message: null,
+            webhookUrl: null,
           });
 
           return;
@@ -127,6 +147,7 @@ export function useDeploy() {
           phase: "success",
           errors: [],
           message: "Workflow structure is valid.",
+          webhookUrl: null,
         });
       },
     [],
@@ -139,6 +160,7 @@ export function useDeploy() {
           phase: "idle",
           errors: [],
           message: null,
+          webhookUrl: null,
         });
       },
     [],

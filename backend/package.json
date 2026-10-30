@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
     "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
     "dev:sweeper": "tsx watch src/workers/outbox_sweeper.ts",
-    "start:sweeper": "node dist/workers/outbox_sweeper.js",
     "dev:worker": "tsx watch src/workers/worker.ts",
+    
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:sweeper": "node dist/workers/outbox_sweeper.js",
     "start:worker": "node dist/workers/worker.js"
   },
   "keywords": [],

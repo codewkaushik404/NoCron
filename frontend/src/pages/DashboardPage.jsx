@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Plus, RefreshCw, Workflow } from "lucide-react";
+import { ArrowRight, Plus, RefreshCw, Workflow, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiUrl } from "../lib/apiBase.js";
 import { useAuth } from "../state/useAuth.js";
@@ -24,12 +24,11 @@ export default function DashboardPage() {
       });
 
       const result = await response.json().catch(() => ({}));
-
-      if (!result.ok) {
+      if (!response.ok) {
         throw new Error(result.message || "Unable to load workflows.");
       }
 
-      setWorkflows(result.data ?? []);
+      setWorkflows(Array.isArray(result.data) ? result.data : []);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -87,8 +86,19 @@ export default function DashboardPage() {
           </div>
 
           {error ? (
-            <div className="mt-8 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
+            <div
+              role="alert"
+              className="mt-8 flex items-start justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              <p>{error}</p>
+              <button
+                type="button"
+                aria-label="Dismiss error"
+                onClick={() => setError("")}
+                className="shrink-0 rounded-md p-1 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                <X size={16} />
+              </button>
             </div>
           ) : null}
 
@@ -242,7 +252,7 @@ function WorkflowCard({ workflow, onOpen }) {
       </p>
 
       <p className="mt-6 text-sm font-semibold text-indigo-600 opacity-0 transition group-hover:opacity-100">
-        Open workflow →
+        Open workflow {"->"}
       </p>
     </button>
   );

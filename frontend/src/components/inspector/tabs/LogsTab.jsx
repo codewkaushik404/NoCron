@@ -2,11 +2,6 @@ import { ScrollText } from "lucide-react";
 import { useRecoilValue } from "recoil";
 import { executionLogsState, workflowMetaState } from "../../../state/atoms.js";
 
-/**
- * No backend is wired up yet, so this stays an honest empty state rather
- * than fabricated run history. Once `GET /api/workflows/:id/logs` exists,
- * swap this for a fetch + a list of timestamp / status badge / payload rows.
- */
 export default function LogsTab() {
   const meta = useRecoilValue(workflowMetaState);
   const logs = useRecoilValue(executionLogsState);
@@ -35,12 +30,14 @@ export default function LogsTab() {
       <div>
         <ScrollText size={26} className="mx-auto text-ink-faint" />
         <p className="mt-3 text-sm text-ink-soft">
-          {meta.isActive ? "No executions yet" : "Workflow isn't deployed"}
+          {meta.status === "ACTIVE"
+            ? "No execution logs yet"
+            : "Workflow isn't deployed"}
         </p>
         <p className="mt-1 text-xs text-ink-faint">
-          {meta.isActive
-            ? "Runs will show up here with their status and payload as they happen."
-            : "Deploy the workflow to start collecting execution logs."}
+          {meta.status === "ACTIVE"
+            ? "Send a POST request to this workflow's webhook URL to create a run. Its status will appear here."
+            : "Publish this workflow, then send a POST request to its webhook URL. Run statuses will appear here."}
         </p>
       </div>
     </div>

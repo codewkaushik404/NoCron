@@ -24,5 +24,5 @@ export default function Button({
   );
 }
 
-export const primaryButton = "inline-flex items-center justify-center gap-2 rounded-xl bg-black px-5 py-1.5 text-[15px] font-semibold text-white shadow-sm transition-colors";
+export const primaryButton = "inline-flex items-center justify-center gap-2 rounded-xl bg-black px-5 py-2 text-[15px] font-semibold text-white shadow-sm transition-colors";
 

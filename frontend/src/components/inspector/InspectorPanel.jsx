@@ -5,6 +5,7 @@ import {
   ChevronUp,
   PanelRightClose,
   SlidersHorizontal,
+  ScrollText,
 } from "lucide-react";
 
 import { inspectorTabState, selectedNodeState } from "../../state/atoms.js";
@@ -15,7 +16,6 @@ import PayloadTab from "./tabs/PayloadTab.jsx";
 import LogsTab from "./tabs/LogsTab.jsx";
 
 const outputTabs = [
-  { id: "payload", label: "Backend payload" },
   { id: "logs", label: "Execution logs" },
 ];
 
@@ -24,11 +24,11 @@ export default function InspectorPanel({ onClose }) {
   const activeTab = useRecoilValue(inspectorTabState);
   const setActiveTab = useSetRecoilState(inspectorTabState);
 
-  const [isOutputOpen, setIsOutputOpen] = useState(false);
+  const [isOutputOpen, setIsOutputOpen] = useState(true);
 
   return (
     <Panel
-      title="Step settings"
+      title={isOutputOpen ? "Execution logs" : "Settings"}
       action={
         node ? (
           <span className="font-mono text-[10px] text-ink-faint">
@@ -54,10 +54,10 @@ export default function InspectorPanel({ onClose }) {
                     className="mx-auto text-ink-faint"
                   />
 
-                  <p className="mt-3 text-sm text-ink-soft">No step selected</p>
+                  <p className="mt-3 text-sm text-ink-soft">No Node selected</p>
 
                   <p className="mt-1 text-xs leading-relaxed text-ink-faint">
-                    Select a workflow step to edit its configuration.
+                    Select a workflow node to edit its configuration.
                   </p>
                 </div>
               </div>
@@ -101,10 +101,21 @@ export default function InspectorPanel({ onClose }) {
         {!isOutputOpen ? (
           <button
             type="button"
-            onClick={() => setIsOutputOpen(true)}
-            className="flex h-10 shrink-0 items-center justify-between border-t border-line px-3 text-ink-faint hover:text-ink-soft"
+            onClick={() => {
+              setActiveTab("logs");
+              setIsOutputOpen(true);
+            }}
+            className="flex shrink-0 items-center gap-3 border-t border-line px-3 py-3 text-left text-ink-faint transition hover:bg-raised/50 hover:text-ink-soft"
           >
-            <span className="text-xs font-semibold">Workflow output</span>
+            <ScrollText size={16} className="shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold text-ink-soft">
+                Execution logs
+              </span>
+              <span className="mt-0.5 block text-[10px] leading-relaxed text-ink-faint">
+                View workflow runs and their statuses
+              </span>
+            </span>
             <ChevronUp size={14} />
           </button>
         ) : null}

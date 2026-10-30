@@ -9,6 +9,7 @@ import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 import {
   deployStatusState,
   edgesState,
+  executionLogsState,
   nodesState,
   selectedNodeIdState,
   workflowMetaState,
@@ -263,6 +264,21 @@ export function useWorkflow() {
           set(nodesState, loadedNodes);
           set(edgesState, loadedEdges);
           set(selectedNodeIdState, null);
+          set(
+            executionLogsState,
+            [...(workflow.executions ?? [])]
+              .sort(
+                (a, b) =>
+                  new Date(b.created_at).getTime() -
+                  new Date(a.created_at).getTime(),
+              )
+              .map((execution) => ({
+                executionId: execution.id,
+                status: execution.status,
+                message: `Execution ${execution.status.toLowerCase()}.`,
+                timestamp: execution.created_at,
+              })),
+          );
 
           set(workflowMetaState, {
             name: workflow.name,

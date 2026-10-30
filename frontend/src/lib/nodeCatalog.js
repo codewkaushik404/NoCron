@@ -82,7 +82,7 @@ export const catalogByType = Object.fromEntries(
 
 export const librarySections = [
   { kind: NODE_KIND.TRIGGER, title: "Triggers" },
-  { kind: NODE_KIND.ACTION, title: "Sequential actions" },
+  { kind: NODE_KIND.ACTION, title: "Actions" },
 ];
 
 export const accentStyles = {
