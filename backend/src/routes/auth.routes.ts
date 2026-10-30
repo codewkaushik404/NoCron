@@ -16,8 +16,12 @@ router.get("/google/callback",
     passport.authenticate("google", {
         session: true
     }),
-    (req, res) => {
-        return res.redirect(`${config.FRONTEND_URL}/dashboard`);
+    (req, res, next) => {
+        req.session.save((error) => {
+            if (error) return next(error);
+
+            return res.redirect(`${config.FRONTEND_URL}/dashboard`);
+        });
     }
 )
 

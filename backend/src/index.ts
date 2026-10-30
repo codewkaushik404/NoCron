@@ -17,6 +17,8 @@ import globalErrorHandler from "./utils/globalErrorHandler.js";
 const app = express();
 const PORT = config.PORT;
 
+app.set("trust proxy", 1);
+
 const pool = new Pool({
     connectionString: config.DATABASE_URL
 });
