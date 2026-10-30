@@ -40,6 +40,11 @@ export const deployStatusState = atom({
   },
 });
 
+export const workflowLoadState = atom({
+  key: "workflowLoad",
+  default: "ready",
+});
+
 export const executionLogsState = atom({
   key: "executionLogs",
   default: [],
@@ -63,3 +68,6 @@ export const graphStatsState = selector({
     edgeCount: get(edgesState).length,
   }),
 });
+
+
+

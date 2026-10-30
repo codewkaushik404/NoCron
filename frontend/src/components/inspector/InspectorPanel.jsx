@@ -9,15 +9,13 @@ import {
 } from "lucide-react";
 
 import { inspectorTabState, selectedNodeState } from "../../state/atoms.js";
-
+import { catalogByType } from "../../lib/nodeCatalog.js";
 import Panel from "../ui/Panel.jsx";
 import ConfigTab from "./ConfigTab.jsx";
 import PayloadTab from "./tabs/PayloadTab.jsx";
 import LogsTab from "./tabs/LogsTab.jsx";
 
-const outputTabs = [
-  { id: "logs", label: "Execution logs" },
-];
+const outputTabs = [{ id: "logs", label: "Execution logs" }];
 
 export default function InspectorPanel({ onClose }) {
   const node = useRecoilValue(selectedNodeState);
@@ -29,13 +27,7 @@ export default function InspectorPanel({ onClose }) {
   return (
     <Panel
       title={isOutputOpen ? "Execution logs" : "Settings"}
-      action={
-        node ? (
-          <span className="font-mono text-[10px] text-ink-faint">
-            {node.id}
-          </span>
-        ) : null
-      }
+      action={null}
       onClose={onClose}
       closeIcon={<PanelRightClose size={15} />}
       className="w-[270px] shrink-0 border-l border-line"

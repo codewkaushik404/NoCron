@@ -13,6 +13,7 @@ import {
   nodesState,
   selectedNodeIdState,
   workflowMetaState,
+  workflowLoadState
 } from "./atoms.js";
 
 import { catalogByType } from "../lib/nodeCatalog.js";
@@ -195,6 +196,7 @@ export function useWorkflow() {
     ({ set }) =>
       async (workflowId) => {
         try {
+          set(workflowLoadState, "loading");
           const response = await fetch(
             apiUrl(`/api/v1/workflows/${workflowId}`),
             {
@@ -288,8 +290,10 @@ export function useWorkflow() {
             updatedAt: workflow.updated_at,
           });
 
+          set(workflowLoadState, "ready");
           return workflow;
         } catch (error) {
+          
           set(deployStatusState, {
             phase: "error",
             errors: [
@@ -299,6 +303,7 @@ export function useWorkflow() {
             ],
             message: null,
           });
+          set(workflowLoadState, "error");
 
           return null;
         }

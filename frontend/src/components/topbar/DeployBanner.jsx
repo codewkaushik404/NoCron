@@ -29,13 +29,13 @@ export default function DeployBanner() {
 
   return (
     <div
-      className={`relative z-50 border-b px-5 py-3 ${
+      className={`pointer-events-auto absolute left-1/2 top-3 z-50 w-[min(620px,calc(100%-2rem))] -translate-x-1/2 rounded-xl border px-4 py-3 shadow-lg shadow-slate-900/10 ${
         isError
-          ? "border-rose-200 bg-rose-50 text-rose-950"
-          : "border-emerald-200 bg-emerald-50 text-emerald-950"
+          ? "border-rose-200 bg-rose-50/95 text-rose-950"
+          : "border-emerald-200 bg-emerald-50/95 text-emerald-950"
       }`}
     >
-      <div className="mx-auto flex w-full max-w-[1500px] items-start gap-3">
+      <div className="flex items-start gap-3">
         {isError ? (
           <AlertTriangle size={17} className="mt-0.5 shrink-0 text-rose-600" />
         ) : (
@@ -65,14 +65,14 @@ export default function DeployBanner() {
               </p>
 
               {status.webhookUrl ? (
-                <div className="mt-2 max-w-3xl">
+                <div className="mt-2">
                   <p className="text-xs text-emerald-800">
-                    Send requests to this URL to trigger your workflow. You can
-                    also click the webhook trigger to view it again.
+                    Use this URL to trigger the workflow. You can also click the
+                    webhook trigger to view it again.
                   </p>
 
                   <div className="mt-2 flex items-center gap-2 rounded-lg border border-emerald-200 bg-white/80 px-3 py-2">
-                    <code className="min-w-0 flex-1 truncate text-xs text-emerald-950">
+                    <code className="min-w-0 flex-1 truncate text-[11px] text-emerald-950">
                       {status.webhookUrl}
                     </code>
 
@@ -95,7 +95,7 @@ export default function DeployBanner() {
           type="button"
           onClick={dismiss}
           aria-label="Dismiss notification"
-          className="ml-auto shrink-0 rounded-md bg-white/70 p-1 text-current/70 transition hover:bg-white hover:text-current"
+          className="shrink-0 rounded-md p-1 text-current/60 transition hover:bg-black/5 hover:text-current"
         >
           <X size={15} />
         </button>
