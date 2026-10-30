@@ -4,7 +4,7 @@ const requiredFields = {
   webhookTrigger: [],
   scheduleTrigger: ["expression"],
   branch: ["variable", "value"],
-  wait: ["seconds"],
+  wait: ["wait_time"],
   sendEmail: ["recipient"],
   slackNotify: ["webhook_url"],
   discordNotify: ["webhook_url"]
@@ -41,7 +41,7 @@ export function validateWorkflow({ nodes, edges }) {
         value === undefined ||
         value === null ||
         value === "" ||
-        (typeof value === "number" && value <= 0);
+        (typeof value === "number" && value < 0);
       if (empty) {
         errors.push(`"${label}" is missing a value for ${key}.`);
       }
