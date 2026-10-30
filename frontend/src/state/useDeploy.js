@@ -1,18 +1,14 @@
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
+  deployStatusState,
   edgesState,
-  executionLogsState,
   nodesState,
   workflowMetaState,
-  deployStatusState,
 } from "./atoms.js";
 
 import { validateWorkflow } from "../lib/validator.js";
-import {
-  buildDeployPayload,
-  getExecutionOrder,
-} from "../lib/serializer.js";
-import { getWorkflowHookId, makeHookId } from "../lib/ids.js";
+import { buildPublishPayload } from "../lib/serializer.js";
+import { apiUrl } from "../lib/apiBase.js";
 
 export function useDeploy() {
   const status = useRecoilValue(deployStatusState);
@@ -26,28 +22,15 @@ export function useDeploy() {
           snapshot.getPromise(workflowMetaState),
         ]);
 
-        const result = validateWorkflow({ nodes, edges });
+        const validation = validateWorkflow({ nodes, edges });
 
-        if (!result.valid) {
+        if (!validation.valid) {
           set(deployStatusState, {
             phase: "error",
-            errors: result.errors,
+            errors: validation.errors,
             message: null,
           });
-          return;
-        }
 
-        const backendUrl =
-          import.meta.env.VITE_BACKEND_DEPLOY_URL?.trim();
-
-        if (!backendUrl) {
-          set(deployStatusState, {
-            phase: "error",
-            errors: [
-              "Set VITE_BACKEND_DEPLOY_URL in frontend/.env before deploying.",
-            ],
-            message: null,
-          });
           return;
         }
 
@@ -58,74 +41,66 @@ export function useDeploy() {
         });
 
         try {
-          const webhookNode = nodes.find(
-            (node) =>
-              node.type === "webhookTrigger" || node.type === "tallyTrigger"
-          );
-          const hookId = getWorkflowHookId(nodes) ?? (webhookNode ? null : makeHookId());
-
-          if (webhookNode && !hookId) {
-            set(deployStatusState, {
-              phase: "error",
-              errors: ["The webhook trigger is missing its hook ID."],
-              message: null,
-            });
-            return;
-          }
-
-          const baseUrl = backendUrl.replace(/\/+$/, "");
-          const deployUrl = `${baseUrl}/deploy/${encodeURIComponent(hookId)}`;
-
-          const response = await fetch(deployUrl, {
+          const response = await fetch(apiUrl("/api/v1/workflows/publish"), {
             method: "POST",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(
-              buildDeployPayload({
+              buildPublishPayload({
                 meta,
                 nodes,
                 edges,
-                isActive: true,
-              })
+              }),
             ),
           });
 
-          if (!response.ok) {
-            const responseText = await response.text();
+          const result = await response.json().catch(() => null);
 
+          if (!response.ok) {
             throw new Error(
-              responseText
-                ? `Backend rejected deployment (${response.status}): ${responseText}`
-                : `Backend rejected deployment with status ${response.status}.`
+              result?.message ||
+                result?.error ||
+                "The backend rejected the workflow.",
             );
           }
 
-          // Mark workflow active only after successful deployment
+          const workflow = result?.data ?? result?.workflow ?? result;
+
+          if (!workflow?.id) {
+            throw new Error(
+              "The workflow was created, but its ID was not returned.",
+            );
+          }
+
           set(workflowMetaState, (previous) => ({
             ...previous,
-            isActive: true,
+            name: workflow.name ?? previous.name,
+            workflowId: workflow.id,
+            status: workflow.status ?? "ACTIVE",
+            createdAt: workflow.created_at ?? null,
+            updatedAt: workflow.updated_at ?? null,
           }));
 
           set(deployStatusState, {
             phase: "success",
             errors: [],
-            message: "Workflow deployed successfully.",
+            message: "Workflow published successfully.",
           });
-          
         } catch (error) {
           set(deployStatusState, {
             phase: "error",
             errors: [
               error instanceof Error
                 ? error.message
-                : "Unable to reach the deployment backend.",
+                : "Unable to publish workflow.",
             ],
             message: null,
           });
         }
       },
-    []
+    [],
   );
 
   const simulate = useRecoilCallback(
@@ -136,75 +111,37 @@ export function useDeploy() {
           snapshot.getPromise(edgesState),
         ]);
 
-        const result = validateWorkflow({ nodes, edges });
+        const validation = validateWorkflow({ nodes, edges });
 
-        if (!result.valid) {
+        if (!validation.valid) {
           set(deployStatusState, {
             phase: "error",
-            errors: result.errors,
+            errors: validation.errors,
             message: null,
           });
+
           return;
         }
-
-        const executionId = `sim-${Date.now()}`;
-        const startedAt = new Date().toISOString();
-        const order = getExecutionOrder({ nodes, edges });
-
-        set(deployStatusState, {
-          phase: "simulating",
-          errors: [],
-          message: null,
-        });
-
-        const logs = [
-          {
-            executionId,
-            timestamp: startedAt,
-            status: "started",
-            message:
-              "Simulation started. No workflow was saved or activated.",
-          },
-
-          ...order.map((node) => ({
-            executionId,
-            timestamp: new Date().toISOString(),
-            status: "success",
-            message: `Executed ${node.data.name || node.type}.`,
-          })),
-
-          {
-            executionId,
-            timestamp: new Date().toISOString(),
-            status: "success",
-            message: "Simulation completed successfully.",
-          },
-        ];
-
-        set(executionLogsState, (previous) => [
-          ...logs,
-          ...previous,
-        ]);
 
         set(deployStatusState, {
           phase: "success",
           errors: [],
-          message:
-            "Simulation completed. Workflow remains inactive.",
+          message: "Workflow structure is valid.",
         });
       },
-    []
+    [],
   );
 
   const dismiss = useRecoilCallback(
     ({ set }) =>
-      () =>
+      () => {
         set(deployStatusState, {
           phase: "idle",
           errors: [],
           message: null,
-        }),
-    []
+        });
+      },
+    [],
   );
 
   return {

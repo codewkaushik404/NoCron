@@ -49,16 +49,18 @@ export function useAuth() {
   const logout = useRecoilCallback(
     ({ set }) =>
       async () => {
-        if (getApiBase()) {
-          await fetch(apiUrl("/api/auth/logout"), {
-            method: "DELETE",
-            credentials: "include",
-          });
+        try {
+          if (getApiBase()) {
+            await fetch(apiUrl("/api/auth/logout"), {
+              method: "DELETE",
+              credentials: "include",
+            });
+          }
+        } finally {
+          set(userState, null);
+          set(authStatusState, "anonymous");
+          set(authenticatedState, false);
         }
-
-        set(userState, null);
-        set(authStatusState, "anonymous");
-        set(authenticatedState, false);
       },
     [],
   );

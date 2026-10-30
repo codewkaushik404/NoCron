@@ -1,140 +1,77 @@
-import { Clock, Webhook, GitBranch, 
-  Timer, Mail, MessageSquare, FormInput, Ban 
-} from "lucide-react";
+import { Webhook, Timer, Mail, MessageSquare } from "lucide-react";
 
 export const NODE_KIND = {
   TRIGGER: "trigger",
-  LOGIC: "logic",
   ACTION: "action",
 };
 
 export const nodeCatalog = [
   {
-    type: "scheduleTrigger",
+    type: "webhook",
     kind: NODE_KIND.TRIGGER,
-    label: "Schedule Trigger",
-    service: "AWS EventBridge Scheduler",
-    icon: Clock,
-    accent: "cyan",
-    summaryKey: "expression",
-    defaults: {
-      name: "Schedule Trigger",
-      expression: "cron(0 9 * * ? *)",
-      timezone: "Asia/Kolkata",
-    },
-  },
-  {
-    type: "webhookTrigger",
-    kind: NODE_KIND.TRIGGER,
-    label: "Webhook Trigger",
-    service: null,
+    label: "Webhook trigger",
+    service: "Incoming webhook",
     icon: Webhook,
-    accent: "cyan",
+    accent: "teal",
     summaryKey: null,
     defaults: {
-      name: "User Webhook"
+      name: "Webhook trigger",
     },
   },
-  {
-    type: "tallyTrigger",
-    kind: NODE_KIND.TRIGGER,
-    label: "Tally Form",
-    service: "Tally",
-    icon: FormInput,
-    accent: "cyan",
-    summaryKey: "form_name",
-    defaults: {
-      name: "Tally Form Trigger",
-      connection_id: "",
-      form_id: "",
-      form_name: "",
-    },
-  },
-  {
-    type: "branch",
-    kind: NODE_KIND.LOGIC,
-    label: "IF/ELSE Branch",
-    service: "AWS Step Functions",
-    icon: GitBranch,
-    accent: "violet",
-    summaryKey: "variable",
-    defaults: {
-      name: "Check Condition",
-      variable: "variable name",
-      operator: "equals",
-      value: "number",
-    },
-  },
-
-  {
-    type: "wait",
-    kind: NODE_KIND.LOGIC,
-    label: "Wait / Delay",
-    service: "AWS Step Functions",
-    icon: Timer,
-    accent: "violet",
-    summaryKey: "seconds",
-    defaults: {
-      name: "Wait Before Next Step",
-      seconds: 60,
-    },
-  },
-
   {
     type: "sendEmail",
     kind: NODE_KIND.ACTION,
-    label: "Send Email (SES)",
-    service: "AWS SES (Simple Email)",
+    label: "Send email",
+    service: "Email",
     icon: Mail,
-    accent: "amber",
-    summaryKey: "recipient",
+    accent: "blue",
+    summaryKey: "to",
     defaults: {
-      name: "Send Email",
-      recipient: "user@example.com",
-      subject: "Notification",
+      name: "Send email",
+      to: "",
+      subject: "",
+      body: "",
     },
   },
-
   {
-    type: "slackNotify",
+    type: "sendDiscordMessage",
     kind: NODE_KIND.ACTION,
-    label: "Slack Notification",
-    service: "Slack",
-    icon: MessageSquare,
-    accent: "amber",
-    summaryKey: "message",
-    defaults: {
-      name: "Send Slack Notification",
-      webhook_url: "",
-      message: "A workflow event has occurred.",
-    },
-  },
-
-  {
-    type: "discordNotify",
-    kind: NODE_KIND.ACTION,
-    label: "Discord Notification",
+    label: "Send Discord message",
     service: "Discord",
     icon: MessageSquare,
-    accent: "amber",
+    accent: "indigo",
     summaryKey: "message",
     defaults: {
-      name: "Send Discord Notification",
+      name: "Send Discord message",
       webhook_url: "",
-      message: "A workflow event has occurred.",
+      message: "",
     },
   },
-
   {
-    type: "doNothing",
+    type: "sendSlackMessage",
     kind: NODE_KIND.ACTION,
-    label: "Do Nothing",
-    service: "Workflow Control",
-    icon: Ban,
-    accent: "amber",
-    summaryKey: null,
+    label: "Send Slack message",
+    service: "Slack",
+    icon: MessageSquare,
+    accent: "purple",
+    summaryKey: "message",
     defaults: {
-      name: "Do Nothing",
+      name: "Send Slack message",
+      webhook_url: "",
+      message: "",
+    },
+  },
+  {
+    type: "wait",
+    kind: NODE_KIND.ACTION,
+    label: "Wait",
+    service: "Wait",
+    icon: Timer,
+    accent: "slate",
+    summaryKey: "wait_time",
+    defaults: {
+      name: "Wait",
+      wait_time: 5,
     },
   },
 ];
@@ -145,24 +82,37 @@ export const catalogByType = Object.fromEntries(
 
 export const librarySections = [
   { kind: NODE_KIND.TRIGGER, title: "Triggers" },
-  { kind: NODE_KIND.LOGIC, title: "Filter/Logic Control" },
-  { kind: NODE_KIND.ACTION, title: "Actions" },
+  { kind: NODE_KIND.ACTION, title: "Sequential actions" },
 ];
 
 export const accentStyles = {
-  cyan: {
-    iconWrap: "bg-cyan/10 text-cyan ring-1 ring-cyan/30",
-    border: "hover:border-cyan/50",
-    chip: "bg-cyan/10 text-cyan",
+  teal: {
+    iconWrap: "bg-[#66745d]/10 text-[#4f5c48] ring-1 ring-[#66745d]/25",
+    border: "hover:border-[#66745d]/60",
+    chip: "bg-[#66745d]/10 text-[#4f5c48]",
   },
-  violet: {
-    iconWrap: "bg-violet/10 text-violet ring-1 ring-violet/30",
-    border: "hover:border-violet/50",
-    chip: "bg-violet/10 text-violet",
+
+  blue: {
+    iconWrap: "bg-[#64748b]/10 text-[#596579] ring-1 ring-[#64748b]/25",
+    border: "hover:border-[#64748b]/60",
+    chip: "bg-[#64748b]/10 text-[#596579]",
   },
-  amber: {
-    iconWrap: "bg-amber/10 text-amber ring-1 ring-amber/30",
-    border: "hover:border-amber/50",
-    chip: "bg-amber/10 text-amber",
+
+  purple: {
+    iconWrap: "bg-[#756477]/10 text-[#756477] ring-1 ring-[#756477]/25",
+    border: "hover:border-[#756477]/60",
+    chip: "bg-[#756477]/10 text-[#756477]",
+  },
+
+  indigo: {
+    iconWrap: "bg-[#596579]/10 text-[#596579] ring-1 ring-[#596579]/25",
+    border: "hover:border-[#596579]/60",
+    chip: "bg-[#596579]/10 text-[#596579]",
+  },
+
+  slate: {
+    iconWrap: "bg-[#77736b]/10 text-[#77736b] ring-1 ring-[#77736b]/25",
+    border: "hover:border-[#77736b]/60",
+    chip: "bg-[#77736b]/10 text-[#77736b]",
   },
 };

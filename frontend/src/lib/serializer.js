@@ -1,121 +1,72 @@
-import { catalogByType, NODE_KIND } from "./nodeCatalog.js";
-
-/**
- * Turns the live graph into 
- * (a) the JSON payload "Deploy Workflow" sends to
- * the Express API 
- * (b) a simplified AWS States Language document for the
- * Step Functions preview tab. Both read the same {meta, nodes, edges} shape
- * the Recoil store already holds, so the inspector tabs and the deploy hook
- * share one source of truth instead of formatting JSON inline in components.
- */
-
-export function buildDeployPayload({ meta, nodes, edges, isActive }) {
-  
-  return {
-    is_active: isActive,
-    user_id: meta?.user_id ?? null,
-    node_config: {
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        type: node.type,
-        position: node.position,
-        data: node.data,
-      })),
-
-      edges: edges.map((edge) => ({
-        id: edge.id,
-        source: edge.source,
-        dest: edge.target,
-        sourceHandle: edge.sourceHandle ?? null,
-      })),
-    },
-  };
-}
-
-/**
- * Illustrative ASL generation, not a full compiler: enough to show the shape
- * of what deploying would produce, following the edges out of each node to
- * fill in Next/End. Branch nodes become Choice states using their True/False
- * handles; everything else becomes a Task or a Wait.
- */
-export function buildStateMachine({ nodes, edges }) {
-  const byId = Object.fromEntries(nodes.map((node) => [node.id, node]));
-  const stateName = (node) => `${node.type}_${node.id.replace("node-", "")}`;
-  const outgoing = (id, handle) =>
-    edges.find((edge) => edge.source === id && (handle ? edge.sourceHandle === handle : !edge.sourceHandle));
-
-  const trigger = nodes.find((node) => catalogByType[node.type]?.kind === NODE_KIND.TRIGGER);
-  const states = {};
-
-  nodes
-    .filter((node) => node !== trigger)
-    .forEach((node) => {
-      const name = stateName(node);
-
-      if (node.type === "branch") {
-        const trueEdge = outgoing(node.id, "true");
-        const falseEdge = outgoing(node.id, "false");
-        states[name] = {
-          Type: "Choice",
-          Choices: [
-            {
-              Variable: node.data.variable,
-              StringEquals: node.data.value,
-              Next: trueEdge ? stateName(byId[trueEdge.target]) : undefined,
-            },
-          ],
-          Default: falseEdge ? stateName(byId[falseEdge.target]) : undefined,
-        };
-      } else if (node.type === "wait") {
-        const next = outgoing(node.id);
-        states[name] = {
-          Type: "Wait",
-          Seconds: node.data.seconds,
-          Next: next ? stateName(byId[next.target]) : undefined,
-          End: !next,
-        };
-      } else {
-        const next = outgoing(node.id);
-        states[name] = {
-          Type: "Task",
-          Resource:
-            node.type === "sendEmail"
-              ? "arn:aws:states:::aws-sdk:sesv2:sendEmail"
-              : undefined,
-          Parameters: node.data,
-          Next: next ? stateName(byId[next.target]) : undefined,
-          End: !next,
-        };
-      }
-
-    });
-
-  const firstEdge = trigger ? outgoing(trigger.id) : null;
-
-  return {
-    Comment: trigger ? `Generated from ${trigger.data.name}` : "No trigger configured yet",
-    StartAt: firstEdge ? stateName(byId[firstEdge.target]) : null,
-    States: states,
-  };
-}
-
 export function getExecutionOrder({ nodes, edges }) {
-  const machine = buildStateMachine({ nodes, edges });
-  const byName = Object.fromEntries(
-    nodes.map((node) => [`${node.type}_${node.id.replace("node-", "")}`, node])
-  );
   const order = [];
-  let next = machine.StartAt;
   const visited = new Set();
 
-  while (next && !visited.has(next) && byName[next]) {
-    visited.add(next);
-    const node = byName[next];
-    order.push(node);
-    const outgoing = edges.find((edge) => edge.source === node.id);
-    next = outgoing ? `${byName[outgoing.target]?.type}_${outgoing.target.replace("node-", "")}` : null;
+  let current = nodes.find((node) => node.type === "webhook");
+
+  while (current && !visited.has(current.id)) {
+    visited.add(current.id);
+    order.push(current);
+
+    const nextEdge = edges.find((edge) => edge.source === current.id);
+
+    current = nextEdge
+      ? nodes.find((node) => node.id === nextEdge.target)
+      : null;
   }
 
   return order;
+}
+
+export function buildPublishPayload({ meta, nodes, edges }) {
+  const order = getExecutionOrder({ nodes, edges });
+
+  const trigger = order.find((node) => node.type === "webhook");
+
+  const actions = order
+    .filter((node) => node.type !== "webhook")
+    .map((node, index) => ({
+      name: node.data.name,
+      type: node.type,
+      config: getActionConfig(node),
+      order: index + 1,
+    }));
+
+  return {
+    name: meta.name.trim(),
+
+    trigger: {
+      name: trigger.data.name,
+      type: "webhook",
+      config: {},
+    },
+
+    actions,
+  };
+}
+
+function getActionConfig(node) {
+  switch (node.type) {
+    case "sendEmail":
+      return {
+        to: node.data.to,
+        subject: node.data.subject,
+        body: node.data.body,
+      };
+
+    case "sendDiscordMessage":
+    case "sendSlackMessage":
+      return {
+        webhook_url: node.data.webhook_url,
+        message: node.data.message,
+      };
+
+    case "wait":
+      return {
+        wait_time: Number(node.data.wait_time),
+      };
+
+    default:
+      return {};
+  }
 }
