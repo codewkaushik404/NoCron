@@ -12,34 +12,41 @@ export default function AppShell() {
   const [rightOpen, setRightOpen] = useState(true);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-canvas">
+    <div className="app-shell flex h-screen flex-col overflow-hidden bg-canvas">
       <TopBar />
       <DeployBanner />
+
       <div className="flex min-h-0 flex-1">
         {leftOpen ? <NodeLibrary onClose={() => setLeftOpen(false)} /> : null}
+
         <main className="relative flex min-w-0 flex-1 flex-col">
           {!leftOpen ? (
             <button
               type="button"
-              aria-label="Open workflow components panel"
+              aria-label="Open components panel"
               onClick={() => setLeftOpen(true)}
-              className="absolute left-3 top-3 z-20 rounded-lg border border-line bg-panel p-2 text-ink-soft shadow-sm transition-colors hover:text-cyan"
+              className="absolute left-3 top-3 z-20 rounded-md border border-line bg-panel p-2 text-ink-soft shadow-panel hover:text-cyan"
             >
-              <PanelLeftOpen size={16} />
+              <PanelLeftOpen size={15} />
             </button>
           ) : null}
+
           <CanvasSurface />
           <StatusBar />
         </main>
-        {rightOpen ? <InspectorPanel onClose={() => setRightOpen(false)} /> : null}
+
+        {rightOpen ? (
+          <InspectorPanel onClose={() => setRightOpen(false)} />
+        ) : null}
+
         {!rightOpen ? (
           <button
             type="button"
-            aria-label="Open node configuration panel"
+            aria-label="Open inspector panel"
             onClick={() => setRightOpen(true)}
-            className="self-start rounded-lg border border-line bg-panel p-2 text-ink-soft shadow-sm transition-colors hover:text-cyan"
+            className="self-start rounded-md border border-line bg-panel p-2 text-ink-soft shadow-panel hover:text-cyan"
           >
-            <PanelRightOpen size={16} />
+            <PanelRightOpen size={15} />
           </button>
         ) : null}
       </div>
