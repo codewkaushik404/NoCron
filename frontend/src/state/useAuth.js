@@ -1,83 +1,73 @@
 import { useRecoilCallback, useRecoilValue } from "recoil";
-import { userState, authStatusState } from "./authAtoms.js";
-import { getApiBase } from "../lib/apiBase.js";
+import {
+  userState,
+  authStatusState,
+  authenticatedState,
+} from "./authAtoms.js";
+import { apiUrl, getApiBase } from "../lib/apiBase.js";
 
-/**
- * All session state lives behind this hook: checking for an existing cookie
- * on load, handing a Google credential to the backend, and logging out.
- * Nothing else talks to /auth/* directly.
- */
 export function useAuth() {
   const user = useRecoilValue(userState);
   const status = useRecoilValue(authStatusState);
+  const authenticated = useRecoilValue(authenticatedState);
 
   const checkSession = useRecoilCallback(
     ({ set }) =>
       async () => {
-        const apiBase = getApiBase();
-        if (!apiBase) {
+        if (!getApiBase()) {
+          set(userState, null);
           set(authStatusState, "anonymous");
+          set(authenticatedState, false);
           return;
         }
 
         try {
-          const response = await fetch(`${apiBase}/auth/me`, {
+          const response = await fetch(apiUrl("/api/auth/me"), {
             credentials: "include",
           });
-          const data = await response.json();
-          set(userState, data.user ?? null);
-          set(authStatusState, data.user ? "authenticated" : "anonymous");
+
+          if (!response.ok) {
+            throw new Error("No active session.");
+          }
+
+          const result = await response.json();
+          const currentUser = result.data ?? null;
+          const isAuthenticated = Boolean(currentUser);
+
+          set(userState, currentUser);
+          set(authStatusState, isAuthenticated ? "authenticated" : "anonymous");
+          set(authenticatedState, isAuthenticated);
         } catch {
           set(userState, null);
           set(authStatusState, "anonymous");
+          set(authenticatedState, false);
         }
       },
-    []
-  );
-
-  const loginWithGoogle = useRecoilCallback(
-    ({ set }) =>
-      async (credential) => {
-        const apiBase = getApiBase();
-        if (!apiBase) {
-          throw new Error("Set VITE_BACKEND_DEPLOY_URL in frontend/.env before signing in.");
-        }
-
-        const response = await fetch(`${apiBase}/auth/google`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ credential }),
-        });
-
-        if (!response.ok) {
-          const body = await response.json().catch(() => ({}));
-          throw new Error(body.message ?? "Google sign-in failed.");
-        }
-
-        const data = await response.json();
-        set(userState, data.user);
-        set(authStatusState, "authenticated");
-        return data.user;
-      },
-    []
+    [],
   );
 
   const logout = useRecoilCallback(
     ({ set }) =>
       async () => {
-        const apiBase = getApiBase();
-        if (apiBase) {
-          await fetch(`${apiBase}/auth/logout`, {
-            method: "POST",
+        if (getApiBase()) {
+          await fetch(apiUrl("/api/auth/logout"), {
+            method: "DELETE",
             credentials: "include",
-          }).catch(() => {});
+          });
         }
+
         set(userState, null);
         set(authStatusState, "anonymous");
+        set(authenticatedState, false);
       },
-    []
+    [],
   );
 
-  return { user, status, checkSession, loginWithGoogle, logout };
+  return {
+    user,
+    status,
+    authenticated,
+    checkSession,
+    logout,
+  };
 }

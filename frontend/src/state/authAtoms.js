@@ -12,3 +12,9 @@ export const authStatusState = atom({
   default: "checking",
 });
 
+/** Stores the boolean auth state so pages can render based on it directly. */
+export const authenticatedState = atom({
+  key: "authenticatedState",
+  default: false,
+});
+

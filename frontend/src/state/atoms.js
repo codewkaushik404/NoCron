@@ -1,17 +1,13 @@
 import { atom, selector } from "recoil";
 
-/**
- * Recoil is the only place graph state lives. React Flow (Phase 2) is treated
- * as a rendering surface: it reads nodes/edges from here and writes changes
- * back through the actions in `useWorkflow`.
- */
-
 export const workflowMetaState = atom({
   key: "workflowMeta",
   default: {
-    name: "Workflow-Name",
-    region: "us-east-1",
-    isActive: false,
+    name: "Untitled workflow",
+    workflowId: null,
+    status: "DRAFT",
+    createdAt: null,
+    updatedAt: null,
   },
 });
 
@@ -30,16 +26,18 @@ export const selectedNodeIdState = atom({
   default: null,
 });
 
-/** Which inspector output tab is showing, below the node's own fields. */
 export const inspectorTabState = atom({
   key: "inspectorTab",
   default: "payload",
 });
 
-/** Lifecycle of the last "Deploy Workflow" click: idle | deploying | success | error. */
 export const deployStatusState = atom({
   key: "deployStatus",
-  default: { phase: "idle", errors: [], message: null },
+  default: {
+    phase: "idle",
+    errors: [],
+    message: null,
+  },
 });
 
 export const executionLogsState = atom({
@@ -51,7 +49,9 @@ export const selectedNodeState = selector({
   key: "selectedNode",
   get: ({ get }) => {
     const id = get(selectedNodeIdState);
+
     if (!id) return null;
+
     return get(nodesState).find((node) => node.id === id) ?? null;
   },
 });
@@ -62,17 +62,4 @@ export const graphStatsState = selector({
     nodeCount: get(nodesState).length,
     edgeCount: get(edgesState).length,
   }),
-});
-
-export const tallyConnectionState = atom({
-  key: "tallyConnectionState",
-  default: {
-    connection_id: null,
-    forms: [],
-  },
-});
-
-export const tallyFormFieldsState = atom({
-  key: "tallyFormFieldsState",
-  default: {},
 });
