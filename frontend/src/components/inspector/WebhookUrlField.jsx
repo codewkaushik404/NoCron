@@ -1,39 +1,65 @@
 import { useState } from "react";
-import { Copy, Check } from "lucide-react";
-import { hookUrl } from "../../lib/ids.js";
+import { Check, Copy } from "lucide-react";
+import { useRecoilValue } from "recoil";
+import { workflowMetaState } from "../../state/atoms.js";
+import { useAuth } from "../../state/useAuth.js";
+import { getApiBase } from "../../lib/apiBase.js";
 
-/** Read-only URL display with copy-to-clipboard, shown above a webhook node's fields. */
-export default function WebhookUrlField({ hookId }) {
+export default function WebhookUrlField() {
+  const { user } = useAuth();
+  const meta = useRecoilValue(workflowMetaState);
   const [copied, setCopied] = useState(false);
-  const url = hookUrl(hookId);
 
-  const copy = async () => {
+  const apiBase = getApiBase();
+
+  const webhookUrl =
+    apiBase && user?.id && meta.workflowId
+      ? `${apiBase}/api/v1/hooks/catch/${user.id}/${meta.workflowId}`
+      : null;
+
+  async function copyUrl() {
+    if (!webhookUrl) return;
+
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(webhookUrl);
       setCopied(true);
+
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard API can be unavailable (insecure context, permissions) — fail quietly.
+      setCopied(false);
     }
-  };
+  }
 
   return (
     <div>
       <span className="mb-1.5 block text-xs text-ink-soft">Webhook URL</span>
-      <div className="flex items-center gap-2 rounded-lg border border-line bg-raised/60 px-3 py-2.5">
-        <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-ink">{url}</span>
-        <button
-          type="button"
-          onClick={copy}
-          aria-label="Copy webhook URL"
-          className="nodrag shrink-0 rounded p-1 text-ink-faint hover:bg-panel hover:text-cyan"
-        >
-          {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-        </button>
+
+      <div className="rounded-lg border border-line bg-raised/60 p-3">
+        {webhookUrl ? (
+          <div className="flex items-center gap-2">
+            <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-ink">
+              {webhookUrl}
+            </span>
+
+            <button
+              type="button"
+              onClick={copyUrl}
+              aria-label="Copy webhook URL"
+              className="shrink-0 rounded p-1 text-ink-faint hover:text-teal"
+            >
+              {copied ? (
+                <Check size={14} className="text-teal" />
+              ) : (
+                <Copy size={14} />
+              )}
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs leading-relaxed text-ink-faint">
+            Publish this workflow to generate its webhook URL.
+          </p>
+        )}
       </div>
-      <span className="mt-1 block text-[12px] text-ink-faint">
-        Copy this URL and add it as the webhook URL in Tally or another service.
-      </span>
     </div>
   );
 }
