@@ -1,23 +1,22 @@
-/// <reference path="./types/express.d.ts" />
+// <reference path="./types/express.d.ts" />
 import express from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
-import passport from "./config/passport.js";
-import config from "./config/config.js";
-import authRoutes from "./routes/auth.routes.js";
-import hookRoutes from "./routes/hook.routes.js";
-import triggerRoutes from "./routes/trigger.routes.js";
-import actionRoutes from "./routes/action.routes.js";
-import workflowRoutes from "./routes/workflow.routes.js";
+import passport from "../../config/passport.js";
+import config from "../../config/config.js";
+import authRoutes from "../../routes/auth.routes.js";
+import hookRoutes from "../../routes/hook.routes.js";
+import triggerRoutes from "../../routes/trigger.routes.js";
+import actionRoutes from "../../routes/action.routes.js";
+import workflowRoutes from "../../routes/workflow.routes.js";
 import cors from "cors";
 
-import globalErrorHandler from "./utils/globalErrorHandler.js";
+import globalErrorHandler from "../../utils/globalErrorHandler.js";
 
-const app = express();
-const PORT = config.PORT;
+export const app = express();
 
-app.set("trust proxy", 1);
+//app.set("trust proxy", 1);
 
 const pool = new Pool({
     connectionString: config.DATABASE_URL
@@ -26,7 +25,7 @@ const pool = new Pool({
 const pgSessionStore = connectPgSimple(session);
 
 app.use(cors({
-    origin: config.FRONTEND_URL,
+    origin: [config.FRONTEND_URL, "http://localhost:5173"],
     credentials: true
 }))
 
@@ -37,11 +36,10 @@ app.use(session({
     secret: config.SESSION_SECRET,
     name: "sid",
     cookie: {
-        maxAge: 30*60*1000, //30min in ms
+        maxAge: 10*60*1000, //10min in ms
         httpOnly: true,
         sameSite: "none",
-        secure: config.ENVIRONMENT === "prod" ? true : false,
-        path: "/"
+        secure: true
     }
 }))
 
@@ -62,7 +60,3 @@ app.use("/api/v1/actions", actionRoutes);
 app.use("/api/v1/workflows", workflowRoutes);
 
 app.use(globalErrorHandler);
-
-app.listen(PORT, () => {
-    console.log(`Server is listening on :${PORT}`);
-})
