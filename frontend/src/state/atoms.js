@@ -45,6 +45,15 @@ export const workflowLoadState = atom({
   default: "ready",
 });
 
+export const nodeCatalogState = atom({
+  key: "nodeCatalog",
+  default: {
+    status: "loading",
+    entries: [],
+    error: null,
+  },
+});
+
 export const executionLogsState = atom({
   key: "executionLogs",
   default: [],

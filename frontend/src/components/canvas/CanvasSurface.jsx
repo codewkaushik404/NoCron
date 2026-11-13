@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -13,9 +13,9 @@ import {
 import { useRecoilValue } from "recoil";
 import { MousePointerClick, Trash2 } from "lucide-react";
 
-import { nodesState, edgesState } from "../../state/atoms.js";
+import { nodeCatalogState, nodesState, edgesState } from "../../state/atoms.js";
 import { useWorkflow } from "../../state/useWorkflow.js";
-import { nodeTypes } from "./nodeTypes.js";
+import { createNodeTypes } from "./nodeTypes.js";
 
 const defaultEdgeOptions = {
   type: "deletable",
@@ -28,6 +28,8 @@ const defaultEdgeOptions = {
 function Surface() {
   const nodes = useRecoilValue(nodesState);
   const edges = useRecoilValue(edgesState);
+  const { entries } = useRecoilValue(nodeCatalogState);
+  const nodeTypes = useMemo(() => createNodeTypes(entries), [entries]);
 
   const {
     addNode,

@@ -19,7 +19,15 @@ export default function LibraryCard({ entry, onAdd }) {
       className={`group flex w-full items-center gap-3 rounded-xl border border-line bg-raised/50 px-3 py-3 text-left transition-colors ${accent.border} hover:bg-raised`}
     >
       <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${accent.iconWrap}`}>
-        <Icon size={16} strokeWidth={2} />
+        {entry.image_url ? (
+          <img
+            src={entry.image_url}
+            alt=""
+            className="h-5 w-5 object-contain"
+          />
+        ) : (
+          <Icon size={16} strokeWidth={2} />
+        )}
       </span>
 
       <span className="min-w-0 flex-1">

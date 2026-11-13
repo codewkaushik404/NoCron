@@ -1,7 +1,7 @@
 import { Handle, Position } from "@xyflow/react";
 import { useRecoilValue } from "recoil";
-import { catalogByType, NODE_KIND } from "../../lib/nodeCatalog.js";
-import { selectedNodeIdState } from "../../state/atoms.js";
+import { NODE_KIND } from "../../lib/nodeCatalog.js";
+import { nodeCatalogState, selectedNodeIdState } from "../../state/atoms.js";
 import { useWorkflow } from "../../state/useWorkflow.js";
 import NodeCard from "./NodeCard.jsx";
 
@@ -9,7 +9,8 @@ const handleClass =
   "!h-3 !w-3 !rounded-full !border-2 !border-panel !bg-line-strong hover:!bg-cyan";
 
 export default function FlowNode({ id, data, type }) {
-  const entry = catalogByType[type];
+  const { entries } = useRecoilValue(nodeCatalogState);
+  const entry = entries.find((candidate) => candidate.type === type);
   const selectedNodeId = useRecoilValue(selectedNodeIdState);
   const { selectNode, removeNode } = useWorkflow();
 
@@ -30,6 +31,7 @@ export default function FlowNode({ id, data, type }) {
 
       <NodeCard
         node={{ id, type, data }}
+        entry={entry}
         selected={selected}
         onSelect={selectNode}
         onDelete={removeNode}

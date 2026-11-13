@@ -3,6 +3,7 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   deployStatusState,
   edgesState,
+  nodeCatalogState,
   nodesState,
   workflowMetaState,
 } from "./atoms.js";
@@ -29,13 +30,18 @@ export function useDeploy() {
   const deploy = useRecoilCallback(
     ({ snapshot, set }) =>
       async () => {
-        const [nodes, edges, meta] = await Promise.all([
+        const [nodes, edges, meta, catalog] = await Promise.all([
           snapshot.getPromise(nodesState),
           snapshot.getPromise(edgesState),
           snapshot.getPromise(workflowMetaState),
+          snapshot.getPromise(nodeCatalogState),
         ]);
 
-        const validation = validateWorkflow({ nodes, edges });
+        const validation = validateWorkflow({
+          nodes,
+          edges,
+          catalog: catalog.entries,
+        });
 
         if (!validation.valid) {
           set(deployStatusState, {
@@ -125,12 +131,17 @@ export function useDeploy() {
   const simulate = useRecoilCallback(
     ({ snapshot, set }) =>
       async () => {
-        const [nodes, edges] = await Promise.all([
+        const [nodes, edges, catalog] = await Promise.all([
           snapshot.getPromise(nodesState),
           snapshot.getPromise(edgesState),
+          snapshot.getPromise(nodeCatalogState),
         ]);
 
-        const validation = validateWorkflow({ nodes, edges });
+        const validation = validateWorkflow({
+          nodes,
+          edges,
+          catalog: catalog.entries,
+        });
 
         if (!validation.valid) {
           set(deployStatusState, {

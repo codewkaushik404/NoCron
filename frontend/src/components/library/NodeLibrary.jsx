@@ -1,12 +1,19 @@
-import { Layers, PanelLeftClose, Sparkles } from "lucide-react";
+import { Layers, PanelLeftClose } from "lucide-react";
+import { useRecoilValue } from "recoil";
 
-import { librarySections, nodeCatalog } from "../../lib/nodeCatalog.js";
+import { librarySections } from "../../lib/nodeCatalog.js";
+import { nodeCatalogState } from "../../state/atoms.js";
 import { useWorkflow } from "../../state/useWorkflow.js";
 import Panel from "../ui/Panel.jsx";
 import LibraryCard from "./LibraryCard.jsx";
 
 export default function NodeLibrary({ onClose }) {
   const { addNode } = useWorkflow();
+  const catalog = useRecoilValue(nodeCatalogState);
+  const hasTrigger = catalog.entries.some(
+    (entry) => entry.kind === "trigger",
+  );
+  const hasAction = catalog.entries.some((entry) => entry.kind === "action");
 
   return (
     <Panel
@@ -18,8 +25,34 @@ export default function NodeLibrary({ onClose }) {
     >
       <div className="thin-scroll h-full overflow-y-auto">
         <div className="space-y-7 px-4 py-5">
+          {catalog.status === "ready" && (!hasTrigger || !hasAction) ? (
+            <div
+              role="status"
+              className="rounded-xl border border-dashed border-line px-3 py-4 text-center"
+            >
+              <p className="text-sm font-semibold text-ink">
+                {!hasTrigger && !hasAction
+                  ? "No workflow blocks available"
+                  : `No ${!hasTrigger ? "triggers" : "actions"} available`}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-ink-faint">
+                At least one trigger and one action are required to build a
+                workflow.
+              </p>
+            </div>
+          ) : null}
+          {catalog.status === "loading" ? (
+            <p role="status" className="text-xs text-ink-faint">
+              Loading workflow blocks…
+            </p>
+          ) : null}
+          {catalog.status === "error" ? (
+            <p role="alert" className="text-xs text-rose-600">
+              {catalog.error}
+            </p>
+          ) : null}
           {librarySections.map((section) => {
-            const entries = nodeCatalog.filter(
+            const entries = catalog.entries.filter(
               (entry) => entry.kind === section.kind,
             );
 
@@ -35,7 +68,7 @@ export default function NodeLibrary({ onClose }) {
                 <div className="space-y-2.5">
                   {entries.map((entry) => (
                     <LibraryCard
-                      key={entry.type}
+                      key={entry.id}
                       entry={entry}
                       onAdd={addNode}
                     />

@@ -1,9 +1,7 @@
 import { Trash2 } from "lucide-react";
-import { accentStyles, catalogByType } from "../../lib/nodeCatalog.js";
+import { accentStyles } from "../../lib/nodeCatalog.js";
 
-export default function NodeCard({ node, selected, onSelect, onDelete }) {
-  const entry = catalogByType[node.type];
-
+export default function NodeCard({ node, entry, selected, onSelect, onDelete }) {
   if (!entry) return null;
 
   const Icon = entry.icon;
@@ -24,7 +22,15 @@ export default function NodeCard({ node, selected, onSelect, onDelete }) {
         <span
           className={`grid h-8 w-8 shrink-0 place-items-center rounded-md ${accent.iconWrap}`}
         >
-          <Icon size={16} strokeWidth={2} />
+          {entry.image_url ? (
+            <img
+              src={entry.image_url}
+              alt=""
+              className="h-5 w-5 object-contain"
+            />
+          ) : (
+            <Icon size={16} strokeWidth={2} />
+          )}
         </span>
 
         <h4 className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">

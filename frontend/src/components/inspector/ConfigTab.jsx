@@ -1,10 +1,13 @@
 import { fieldSchemas } from "../../lib/fieldSchemas.js";
-import { catalogByType } from "../../lib/nodeCatalog.js";
+import { nodeCatalogState } from "../../state/atoms.js";
 import { useWorkflow } from "../../state/useWorkflow.js";
+import { useRecoilValue } from "recoil";
 import WebhookUrlField from "./WebhookUrlField.jsx";
 
 export default function ConfigTab({ node }) {
   const { updateNodeData } = useWorkflow();
+  const { entries } = useRecoilValue(nodeCatalogState);
+  const entry = entries.find((candidate) => candidate.type === node.type);
   const fields = fieldSchemas[node.type] ?? [];
 
   return (
@@ -14,9 +17,9 @@ export default function ConfigTab({ node }) {
     >
       {node.type === "webhook" ? <WebhookUrlField /> : null}
 
-      {catalogByType[node.type]?.service ? (
+      {entry?.service ? (
         <p className="font-mono text-[11px] text-ink-faint">
-          Type: {catalogByType[node.type].service}
+          Type: {entry.service}
         </p>
       ) : null}
 

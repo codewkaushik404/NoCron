@@ -5,85 +5,95 @@ export const NODE_KIND = {
   ACTION: "action",
 };
 
-export const nodeCatalog = [
-  {
-    type: "webhook",
-    kind: NODE_KIND.TRIGGER,
+const presentations = {
+  webhook: {
     label: "Webhook trigger",
     service: "Incoming webhook",
     icon: Webhook,
     accent: "teal",
-    summaryKey: null,
-    defaults: {
-      name: "Webhook trigger",
-    },
+    defaults: { name: "Webhook trigger" },
   },
-  {
-    type: "sendEmail",
-    kind: NODE_KIND.ACTION,
+  sendEmail: {
     label: "Send email",
     service: "Email",
     icon: Mail,
     accent: "blue",
     summaryKey: "to",
-    defaults: {
-      name: "Send email",
-      to: "",
-      subject: "",
-      body: "",
-    },
+    defaults: { name: "Send email", to: "", subject: "", body: "" },
   },
-  {
-    type: "sendDiscordMessage",
-    kind: NODE_KIND.ACTION,
+  sendDiscordMessage: {
     label: "Send Discord message",
     service: "Discord",
     icon: MessageSquare,
     accent: "indigo",
     summaryKey: "message",
-    defaults: {
-      name: "Send Discord message",
-      webhook_url: "",
-      message: "",
-    },
+    defaults: { name: "Send Discord message", webhook_url: "", message: "" },
   },
-  {
-    type: "sendSlackMessage",
-    kind: NODE_KIND.ACTION,
+  sendSlackMessage: {
     label: "Send Slack message",
     service: "Slack",
     icon: MessageSquare,
     accent: "purple",
     summaryKey: "message",
-    defaults: {
-      name: "Send Slack message",
-      webhook_url: "",
-      message: "",
-    },
+    defaults: { name: "Send Slack message", webhook_url: "", message: "" },
   },
-  {
-    type: "wait",
-    kind: NODE_KIND.ACTION,
+  wait: {
     label: "Wait",
     service: "Wait",
     icon: Timer,
     accent: "slate",
     summaryKey: "wait_time",
-    defaults: {
-      name: "Wait",
-      wait_time: 5,
-    },
+    defaults: { name: "Wait", wait_time: 5 },
   },
-];
-
-export const catalogByType = Object.fromEntries(
-  nodeCatalog.map((entry) => [entry.type, entry])
-);
+};
 
 export const librarySections = [
   { kind: NODE_KIND.TRIGGER, title: "Triggers" },
   { kind: NODE_KIND.ACTION, title: "Actions" },
 ];
+
+export function createNodeCatalog(triggers, actions) {
+  if (!Array.isArray(triggers) || !Array.isArray(actions)) {
+    throw new Error("The available node lists must be arrays.");
+  }
+
+  return [
+    ...triggers.map((record) => createCatalogEntry(record, NODE_KIND.TRIGGER)),
+    ...actions.map((record) => createCatalogEntry(record, NODE_KIND.ACTION)),
+  ];
+}
+
+function createCatalogEntry(record, kind) {
+  if (
+    !record ||
+    typeof record.id !== "string" ||
+    typeof record.name !== "string" ||
+    !record.name
+  ) {
+    throw new Error("An available node is missing its id or name.");
+  }
+
+  const presentation = presentations[record.name] ?? {};
+  const label =
+    presentation.label ??
+    record.name
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/[_-]+/g, " ")
+      .replace(/^./, (character) => character.toUpperCase());
+
+  return {
+    id: record.id,
+    type: record.name,
+    kind,
+    label,
+    service: presentation.service ?? label,
+    icon: presentation.icon ?? (kind === NODE_KIND.TRIGGER ? Webhook : MessageSquare),
+    accent: presentation.accent ?? (kind === NODE_KIND.TRIGGER ? "teal" : "slate"),
+    summaryKey: presentation.summaryKey ?? null,
+    image_url: typeof record.image_url === "string" ? record.image_url : "",
+    defaults: { name: label, ...presentation.defaults },
+  };
+}
 
 export const accentStyles = {
   teal: {

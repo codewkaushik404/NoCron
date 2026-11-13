@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { LoaderCircle, PanelLeftOpen, PanelRightOpen } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 
 import TopBar from "../topbar/TopBar.jsx";
 import DeployBanner from "../topbar/DeployBanner.jsx";
@@ -10,7 +10,25 @@ import CanvasSurface from "../canvas/CanvasSurface.jsx";
 import InspectorPanel from "../inspector/InspectorPanel.jsx";
 import StatusBar from "./StatusBar.jsx";
 import { useWorkflow } from "../../state/useWorkflow.js";
-import { workflowLoadState } from "../../state/atoms.js";
+import { nodeCatalogState, workflowLoadState } from "../../state/atoms.js";
+import { createNodeCatalog } from "../../lib/nodeCatalog.js";
+import { apiUrl } from "../../lib/apiBase.js";
+
+async function fetchAvailableNodes(path, label) {
+  const response = await fetch(apiUrl(path), { credentials: "include" });
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(result?.message || `Unable to load available ${label}.`);
+  }
+
+  if (result?.data === null) return [];
+  if (!Array.isArray(result?.data)) {
+    throw new Error(`The available ${label} response has an invalid format.`);
+  }
+
+  return result.data;
+}
 
 export default function AppShell() {
   const [leftOpen, setLeftOpen] = useState(true);
@@ -18,7 +36,46 @@ export default function AppShell() {
 
   const { workflowId } = useParams();
   const { loadWorkflowById } = useWorkflow();
+  const setNodeCatalog = useSetRecoilState(nodeCatalogState);
   const workflowLoad = useRecoilValue(workflowLoadState);
+
+  useEffect(() => {
+    let cancelled = false;
+    setNodeCatalog({ status: "loading", entries: [], error: null });
+
+    async function loadNodeCatalog() {
+      try {
+        const [triggers, actions] = await Promise.all([
+          fetchAvailableNodes("/api/v1/triggers/available", "triggers"),
+          fetchAvailableNodes("/api/v1/actions/available", "actions"),
+        ]);
+
+        if (!cancelled) {
+          setNodeCatalog({
+            status: "ready",
+            entries: createNodeCatalog(triggers, actions),
+            error: null,
+          });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setNodeCatalog({
+            status: "error",
+            entries: [],
+            error:
+              error instanceof Error
+                ? error.message
+                : "Unable to load workflow blocks.",
+          });
+        }
+      }
+    }
+
+    void loadNodeCatalog();
+    return () => {
+      cancelled = true;
+    };
+  }, [setNodeCatalog]);
 
   useEffect(() => {
     if (workflowId) {

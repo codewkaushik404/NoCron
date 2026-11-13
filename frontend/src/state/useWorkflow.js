@@ -12,11 +12,12 @@ import {
   executionLogsState,
   nodesState,
   selectedNodeIdState,
+  nodeCatalogState,
   workflowMetaState,
   workflowLoadState
 } from "./atoms.js";
 
-import { catalogByType } from "../lib/nodeCatalog.js";
+import { NODE_KIND } from "../lib/nodeCatalog.js";
 import { apiUrl } from "../lib/apiBase.js";
 import { makeEdgeId, makeNodeId } from "../lib/ids.js";
 
@@ -30,15 +31,21 @@ export function useWorkflow() {
   const addNode = useRecoilCallback(
     ({ set, snapshot }) =>
       async (type) => {
-        const entry = catalogByType[type];
+        const catalog = await snapshot.getPromise(nodeCatalogState);
+        const entry = catalog.entries.find((candidate) => candidate.type === type);
         if (!entry) return null;
 
         const existingNodes = await snapshot.getPromise(nodesState);
 
         if (
-          entry.kind === "trigger" &&
+          entry.kind === NODE_KIND.TRIGGER &&
           existingNodes.some(
-            (node) => catalogByType[node.type]?.kind === "trigger",
+            (node) =>
+              catalog.entries.some(
+                (candidate) =>
+                  candidate.type === node.type &&
+                  candidate.kind === NODE_KIND.TRIGGER,
+              ),
           )
         ) {
           setDeployStatus({

@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 import { inspectorTabState, selectedNodeState } from "../../state/atoms.js";
-import { catalogByType } from "../../lib/nodeCatalog.js";
 import Panel from "../ui/Panel.jsx";
 import ConfigTab from "./ConfigTab.jsx";
 import PayloadTab from "./tabs/PayloadTab.jsx";
