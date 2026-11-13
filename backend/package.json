@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "dev:sweeper": "tsx watch src/workers/outbox_sweeper.ts",
-    "dev:worker": "tsx watch src/workers/worker.ts",
+    "dev": "tsx watch src/apps/api/index.ts",
+    "dev:sweeper": "tsx watch src/apps/sweeper/index.ts",
+    "dev:worker": "tsx watch src/apps/worker/index.ts",
     
-    "build": "prisma generate && tsc",
-    "start": "node dist/index.js",
-    "start:sweeper": "node dist/workers/outbox_sweeper.js",
-    "start:worker": "node dist/workers/worker.js"
+    "build": "tsc",
+    "start": "node dist/apps/api/index.js",
+    "start:sweeper": "node dist/apps/sweeper/index.js",
+    "start:worker": "node dist/apps/worker/index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
   "type": "module",
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "prisma": "^6.19.3",
     "bullmq": "^6.5.0",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.6",
@@ -42,7 +43,6 @@
     "@types/passport": "^1.0.17",
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/pg": "^8.23.1",
-    "prisma": "^6.19.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }

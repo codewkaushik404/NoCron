@@ -2,11 +2,10 @@ node_modules/
 dist/
 .env
 
-./src/generated/prisma
 .windsurf/
 .claude/
 .agents/
 skills-lock.json
 
-/src/generated/prisma
+src/generated
 .vscode/
