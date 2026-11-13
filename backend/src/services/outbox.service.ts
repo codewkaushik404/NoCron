@@ -20,7 +20,9 @@ export default async function publishOutboxToQueue(): Promise<void> {
                 backoff: {
                     type: "exponential",
                     delay: 1000
-                }
+                },
+                removeOnComplete: false,
+                removeOnFail: false
             }
         }
     })

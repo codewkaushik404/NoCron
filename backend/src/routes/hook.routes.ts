@@ -19,14 +19,13 @@ router.post("/catch/:userId/:workflowId", asyncHandler(async (req: Request, res:
     const workflow = await prisma.workflow.findUnique({
         where: {
             id: workflowId,
-            user_id: userId
+            user_id: userId,
+            status: "ACTIVE"
         }
     })
 
     if(!workflow) throw new ApiError(404, "Workflow not found", null);
-
-    if(workflow.status !== "ACTIVE") throw new ApiError(409, "Workflow is not active", null);
-
+    
     //creates execution and execution outbox records in db
     await createExecution(workflowId);
 

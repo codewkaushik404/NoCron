@@ -15,13 +15,11 @@ if(!process.env.ENVIRONMENT) throw new Error("ENVIRONMENT is not set in env vari
 if(!process.env.CLIENT_ID) throw new Error("CLIENT_ID is not set in env variables")
 if(!process.env.CLIENT_SECRET) throw new Error("CLIENT_SECRET is not set in env variables");
 if(!process.env.CALLBACK_URL) throw new Error("CALLBACK_URL is not set in env variables");
-if(!process.env.SWEEPER_PORT) throw new Error("SWEEPER_PORT is not set in env variables");
 
 if(!process.env.REDIS_URL) throw new Error("REDIS_URL is not set in env variables");
 if(!process.env.REDIS_HOST) throw new Error("REDIS_HOST is not set in env variables");
 if(!process.env.REDIS_PORT) throw new Error("REDIS_PORT is not set in env variables");
 
-if(!process.env.WORKER_PORT) throw new Error("WORKER_PORT is not set in env variables");
 if(!process.env.QUEUE_NAME) throw new Error("QUEUE_NAME is not set in env variables");
 
 if(!process.env.SMTP_HOST) throw new Error("SMTP_HOST is not set in env variables");
@@ -34,8 +32,6 @@ if(!process.env.FRONTEND_URL) throw new Error("FRONTEND_URL is not set in env va
 
 const config = {
     PORT: process.env.PORT,
-    SWEEPER_PORT: process.env.SWEEPER_PORT,
-    WORKER_PORT: process.env.WORKER_PORT,
 
     DATABASE_URL: process.env.DATABASE_URL,
 
