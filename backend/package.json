@@ -8,7 +8,7 @@
     "dev:sweeper": "tsx watch src/apps/sweeper/index.ts",
     "dev:worker": "tsx watch src/apps/worker/index.ts",
     
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/apps/api/index.js",
     "start:sweeper": "node dist/apps/sweeper/index.js",
     "start:worker": "node dist/apps/worker/index.js"

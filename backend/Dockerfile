@@ -8,7 +8,6 @@ RUN npm ci
 ENV DATABASE_URL=postgresql://user:nocron_password_55a0d2b559ac2a38@postgres:5432/nocron?schema=public
 
 COPY . .
-RUN npx prisma generate
 RUN npm run build
 
 FROM node:24-alpine AS runtime
