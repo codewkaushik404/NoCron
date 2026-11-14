@@ -73,6 +73,7 @@ export function useDeploy() {
                 meta,
                 nodes,
                 edges,
+                catalog: catalog.entries,
               }),
             ),
           });

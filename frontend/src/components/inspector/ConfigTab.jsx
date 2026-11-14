@@ -1,4 +1,3 @@
-import { fieldSchemas } from "../../lib/fieldSchemas.js";
 import { nodeCatalogState } from "../../state/atoms.js";
 import { useWorkflow } from "../../state/useWorkflow.js";
 import { useRecoilValue } from "recoil";
@@ -8,14 +7,19 @@ export default function ConfigTab({ node }) {
   const { updateNodeData } = useWorkflow();
   const { entries } = useRecoilValue(nodeCatalogState);
   const entry = entries.find((candidate) => candidate.type === node.type);
-  const fields = fieldSchemas[node.type] ?? [];
+  const fields = [
+    { key: "name", label: "Node name", control: "text" },
+    ...(entry?.fields ?? []),
+  ];
 
   return (
     <form
       className="space-y-4 px-5 py-5"
       onSubmit={(event) => event.preventDefault()}
     >
-      {node.type === "webhook" ? <WebhookUrlField /> : null}
+      {entry?.kind === "trigger" && node.type === "webhook" ? (
+        <WebhookUrlField />
+      ) : null}
 
       {entry?.service ? (
         <p className="font-mono text-[11px] text-ink-faint">
@@ -50,6 +54,7 @@ export default function ConfigTab({ node }) {
               <input
                 type="number"
                 min={field.min}
+                max={field.max}
                 value={value}
                 onChange={(event) =>
                   updateNodeData(node.id, {

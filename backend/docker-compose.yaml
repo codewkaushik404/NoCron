@@ -4,8 +4,10 @@ services:
     container_name: nocron-db
     ports:
       - "5432:5432"
-    env_file:
-      - ./backend/.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 15s
@@ -30,12 +32,12 @@ services:
 
   # Runs database migrations once
   migration:
-    build: ./backend
-    image: nocron-backend
+    build: ./
+    image: backend
     container_name: nocron-migration
     env_file:
-      - ./backend/.env
-    command: ["npx", "prisma", "migrate", "deploy"]
+      - .env
+    command: npx prisma migrate deploy
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,14 +45,12 @@ services:
 
   # Main Express API
   backend:
-    image: nocron-backend
-    container_name: backend-api
+    image: backend
+    container_name: nocron-backend
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
-    environment:
-      FRONTEND_URL: ${FRONTEND_PUBLIC_URL:-http://localhost:3000}
+      - .env
     restart: unless-stopped
     depends_on:
       migration:
@@ -60,10 +60,10 @@ services:
 
   # Outbox sweeper
   sweeper:
-    image: nocron-backend
-    container_name: backend-sweeper
+    image: backend
+    container_name: nocron-sweeper
     env_file:
-      - ./backend/.env
+      - .env
     command: ["npm", "run", "start:sweeper"]
     restart: unless-stopped
     depends_on:
@@ -74,10 +74,10 @@ services:
 
   # BullMQ worker
   worker:
-    image: nocron-backend
-    container_name: backend-worker
+    image: backend
+    container_name: nocron-worker
     env_file:
-      - ./backend/.env
+      - .env
     command: ["npm", "run", "start:worker"]
     restart: unless-stopped
     depends_on:
@@ -85,21 +85,7 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-
-  # React frontend
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_BACKEND_DEPLOY_URL: ${VITE_BACKEND_DEPLOY_URL:-http://localhost:8000}
-    image: nocron-frontend
-    container_name: frontend
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-    depends_on:
-      - backend
-
+        
 volumes:
   postgres_data:
   redis_data:

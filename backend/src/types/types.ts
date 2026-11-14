@@ -2,23 +2,26 @@ import { z } from "zod";
 
 /** ACTIONS CONFIG SCHEMA */
 export const emailConfigSchema = z.object({
-    to: z.email(),
-    subject: z.string(),
-    body: z.string(),
+    to: z.email().meta({ label: "Recipient", control: "text", mono: true }),
+    subject: z.string().meta({ label: "Subject", control: "text" }),
+    body: z.string().meta({ label: "Message", control: "textarea" }),
 }).strict()
 
 export const discordConfigSchema = z.object({
-    webhook_url: z.url({ protocol: /^https$/, hostname: /^(discord|discordapp)\.com$/ }),
-    message: z.string().min(2)
+    webhook_url: z.url({ protocol: /^https$/, hostname: /^(discord|discordapp)\.com$/ })
+        .meta({ label: "Discord webhook URL", control: "text", mono: true }),
+    message: z.string().min(2).meta({ label: "Message", control: "textarea" })
 }).strict()
 
 export const slackConfigSchema = z.object({
-    webhook_url: z.url({ protocol: /^https$/, hostname: /^hooks\.slack\.com$/ }),
-    message: z.string().min(2)
+    webhook_url: z.url({ protocol: /^https$/, hostname: /^hooks\.slack\.com$/ })
+        .meta({ label: "Slack webhook URL", control: "text", mono: true }),
+    message: z.string().min(2).meta({ label: "Message", control: "textarea" })
 }).strict()
 
 export const waitConfigSchema = z.object({
-    wait_time: z.coerce.number().nonnegative().max(60) //minutes
+    wait_time: z.coerce.number().nonnegative().max(60)
+        .meta({ label: "Wait time in minutes", control: "number", min: 0, max: 60 })
 }).strict()
 
 /** TRIGGER CONFIG SCHEMA */

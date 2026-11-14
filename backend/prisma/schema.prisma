@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  engineType = "client"
 }
 
 datasource db {
@@ -45,7 +46,6 @@ model session {
 model AvailableTrigger {
   id         String   @id @default(uuid())
   name       String   @unique
-  image_url  String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -70,7 +70,6 @@ model Trigger {
 model AvailableAction {
   id         String   @id @default(uuid())
   name       String   @unique
-  image_url  String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 

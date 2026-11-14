@@ -1,8 +1,13 @@
-export function getExecutionOrder({ nodes, edges }) {
+export function getExecutionOrder({ nodes, edges, catalog }) {
   const order = [];
   const visited = new Set();
+  const catalogByType = Object.fromEntries(
+    catalog.map((entry) => [entry.type, entry]),
+  );
 
-  let current = nodes.find((node) => node.type === "webhook");
+  let current = nodes.find(
+    (node) => catalogByType[node.type]?.kind === "trigger",
+  );
 
   while (current && !visited.has(current.id)) {
     visited.add(current.id);
@@ -18,17 +23,22 @@ export function getExecutionOrder({ nodes, edges }) {
   return order;
 }
 
-export function buildPublishPayload({ meta, nodes, edges }) {
-  const order = getExecutionOrder({ nodes, edges });
+export function buildPublishPayload({ meta, nodes, edges, catalog }) {
+  const catalogByType = Object.fromEntries(
+    catalog.map((entry) => [entry.type, entry]),
+  );
+  const order = getExecutionOrder({ nodes, edges, catalog });
 
-  const trigger = order.find((node) => node.type === "webhook");
+  const trigger = order.find(
+    (node) => catalogByType[node.type]?.kind === "trigger",
+  );
 
   const actions = order
-    .filter((node) => node.type !== "webhook")
+    .filter((node) => catalogByType[node.type]?.kind === "action")
     .map((node, index) => ({
       name: node.data.name,
       type: node.type,
-      config: getActionConfig(node),
+      config: getNodeConfig(node, catalogByType[node.type]),
       order: index + 1,
     }));
 
@@ -37,36 +47,19 @@ export function buildPublishPayload({ meta, nodes, edges }) {
 
     trigger: {
       name: trigger.data.name,
-      type: "webhook",
-      config: {},
+      type: trigger.type,
+      config: getNodeConfig(trigger, catalogByType[trigger.type]),
     },
 
     actions,
   };
 }
 
-function getActionConfig(node) {
-  switch (node.type) {
-    case "sendEmail":
-      return {
-        to: node.data.to,
-        subject: node.data.subject,
-        body: node.data.body,
-      };
-
-    case "sendDiscordMessage":
-    case "sendSlackMessage":
-      return {
-        webhook_url: node.data.webhook_url,
-        message: node.data.message,
-      };
-
-    case "wait":
-      return {
-        wait_time: Number(node.data.wait_time),
-      };
-
-    default:
-      return {};
-  }
+function getNodeConfig(node, entry) {
+  return Object.fromEntries(
+    (entry?.fields ?? []).map((field) => [
+      field.key,
+      field.control === "number" ? Number(node.data[field.key]) : node.data[field.key],
+    ]),
+  );
 }

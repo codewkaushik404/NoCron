@@ -1,5 +1,4 @@
 import { NODE_KIND } from "./nodeCatalog.js";
-import { fieldSchemas } from "./fieldSchemas.js";
 
 /**
  * Structural checks run before "Deploy Workflow" is allowed to serialize and
@@ -42,7 +41,7 @@ export function validateWorkflow({ nodes, edges, catalog = [] }) {
       }
     }
 
-    fieldSchemas[node.type]
+    entry.fields
       ?.filter((field) => field.required)
       .forEach(({ key }) => {
         const value = node.data[key];
@@ -56,13 +55,6 @@ export function validateWorkflow({ nodes, edges, catalog = [] }) {
         }
       });
 
-    if (node.type === "branch") {
-      const hasTrue = edges.some((edge) => edge.source === node.id && edge.sourceHandle === "true");
-      const hasFalse = edges.some((edge) => edge.source === node.id && edge.sourceHandle === "false");
-      if (!hasTrue || !hasFalse) {
-        errors.push(`"${label}" needs both a True and a False path connected.`);
-      }
-    }
   });
 
   return { valid: errors.length === 0, errors };

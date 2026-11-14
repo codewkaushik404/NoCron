@@ -1,9 +1,4 @@
-import dotenv from "dotenv";
-import path from "node:path";
-
-dotenv.config({
-    path: path.resolve(process.cwd(), ".env")
-});
+import "./loadEnv.js";
 
 const environment = (process.env.ENVIRONMENT ?? "").toLowerCase();
 const isProduction = environment === "prod" || environment === "production";

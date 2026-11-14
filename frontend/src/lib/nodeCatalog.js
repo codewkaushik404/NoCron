@@ -1,50 +1,8 @@
-import { Webhook, Timer, Mail, MessageSquare } from "lucide-react";
+import { Webhook, Mail, MessageSquare } from "lucide-react";
 
 export const NODE_KIND = {
   TRIGGER: "trigger",
   ACTION: "action",
-};
-
-const presentations = {
-  webhook: {
-    label: "Webhook trigger",
-    service: "Incoming webhook",
-    icon: Webhook,
-    accent: "teal",
-    defaults: { name: "Webhook trigger" },
-  },
-  sendEmail: {
-    label: "Send email",
-    service: "Email",
-    icon: Mail,
-    accent: "blue",
-    summaryKey: "to",
-    defaults: { name: "Send email", to: "", subject: "", body: "" },
-  },
-  sendDiscordMessage: {
-    label: "Send Discord message",
-    service: "Discord",
-    icon: MessageSquare,
-    accent: "indigo",
-    summaryKey: "message",
-    defaults: { name: "Send Discord message", webhook_url: "", message: "" },
-  },
-  sendSlackMessage: {
-    label: "Send Slack message",
-    service: "Slack",
-    icon: MessageSquare,
-    accent: "purple",
-    summaryKey: "message",
-    defaults: { name: "Send Slack message", webhook_url: "", message: "" },
-  },
-  wait: {
-    label: "Wait",
-    service: "Wait",
-    icon: Timer,
-    accent: "slate",
-    summaryKey: "wait_time",
-    defaults: { name: "Wait", wait_time: 5 },
-  },
 };
 
 export const librarySections = [
@@ -73,25 +31,45 @@ function createCatalogEntry(record, kind) {
     throw new Error("An available node is missing its id or name.");
   }
 
-  const presentation = presentations[record.name] ?? {};
-  const label =
-    presentation.label ??
-    record.name
-      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-      .replace(/[_-]+/g, " ")
-      .replace(/^./, (character) => character.toUpperCase());
+  if (!Array.isArray(record.fields)) {
+    throw new Error(`Available node "${record.name}" has no field schema.`);
+  }
+
+  const label = record.name
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/^./, (character) => character.toUpperCase());
+  const fields = record.fields.filter(
+    (field) =>
+      field &&
+      typeof field.key === "string" &&
+      typeof field.label === "string" &&
+      ["text", "textarea", "number"].includes(field.control),
+  );
+  const defaults = Object.fromEntries(
+    fields.map((field) => [
+      field.key,
+      field.defaultValue ?? (field.control === "number" ? field.min ?? 0 : ""),
+    ]),
+  );
+  const icon = kind === NODE_KIND.TRIGGER
+    ? Webhook
+    : /email/i.test(record.name)
+      ? Mail
+      : MessageSquare;
 
   return {
     id: record.id,
     type: record.name,
     kind,
     label,
-    service: presentation.service ?? label,
-    icon: presentation.icon ?? (kind === NODE_KIND.TRIGGER ? Webhook : MessageSquare),
-    accent: presentation.accent ?? (kind === NODE_KIND.TRIGGER ? "teal" : "slate"),
-    summaryKey: presentation.summaryKey ?? null,
+    service: label,
+    icon,
+    accent: kind === NODE_KIND.TRIGGER ? "teal" : /email/i.test(record.name) ? "blue" : "slate",
+    summaryKey: fields[0]?.key ?? null,
     image_url: typeof record.image_url === "string" ? record.image_url : "",
-    defaults: { name: label, ...presentation.defaults },
+    fields,
+    defaults: { name: label, ...defaults },
   };
 }
 
