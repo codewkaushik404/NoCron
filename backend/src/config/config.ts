@@ -11,7 +11,6 @@ if(!process.env.CLIENT_ID) throw new Error("CLIENT_ID is not set in env variable
 if(!process.env.CLIENT_SECRET) throw new Error("CLIENT_SECRET is not set in env variables");
 if(!process.env.CALLBACK_URL) throw new Error("CALLBACK_URL is not set in env variables");
 
-if(!process.env.REDIS_URL) throw new Error("REDIS_URL is not set in env variables");
 if(!process.env.REDIS_HOST) throw new Error("REDIS_HOST is not set in env variables");
 if(!process.env.REDIS_PORT) throw new Error("REDIS_PORT is not set in env variables");
 
@@ -30,7 +29,6 @@ const config = {
 
     DATABASE_URL: process.env.DATABASE_URL,
 
-    REDIS_URL: process.env.REDIS_URL,
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: process.env.REDIS_PORT,
 
