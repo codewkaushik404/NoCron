@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/apps/api/index.ts",
+    "dev": "tsx watch src/index.ts",
     "dev:sweeper": "tsx watch src/apps/sweeper/index.ts",
     "dev:worker": "tsx watch src/apps/worker/index.ts",
     "build": "prisma generate && tsc -b",
-    "start": "node dist/apps/api/index.js",
+    "start": "node dist/index.js",
     "start:sweeper": "node dist/apps/sweeper/index.js",
     "start:worker": "node dist/apps/worker/index.js"
   },
