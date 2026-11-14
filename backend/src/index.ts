@@ -1,4 +1,4 @@
-import { app } from "./app.js";
+import app from "./app.js";
 import config from "./config/config.js";
 import prisma from "./config/prismaClient.js";
 

@@ -14,7 +14,7 @@ import cors from "cors";
 
 import globalErrorHandler from "./utils/globalErrorHandler.js";
 
-export const app = express();
+const app = express();
 
 const pool = new Pool({
     connectionString: config.DATABASE_URL
@@ -58,3 +58,5 @@ app.use("/api/v1/actions", actionRoutes);
 app.use("/api/v1/workflows", workflowRoutes);
 
 app.use(globalErrorHandler);
+
+export default app;
