@@ -15,6 +15,7 @@ import cors from "cors";
 import globalErrorHandler from "./utils/globalErrorHandler.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 const pool = new Pool({
     connectionString: config.DATABASE_URL
