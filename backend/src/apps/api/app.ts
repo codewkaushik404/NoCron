@@ -16,8 +16,6 @@ import globalErrorHandler from "../../utils/globalErrorHandler.js";
 
 export const app = express();
 
-//app.set("trust proxy", 1);
-
 const pool = new Pool({
     connectionString: config.DATABASE_URL
 });
@@ -38,8 +36,8 @@ app.use(session({
     cookie: {
         maxAge: 10*60*1000, //10min in ms
         httpOnly: true,
-        sameSite: "lax",
-        secure: false
+        sameSite: config.ENVIRONMENT === "production" ? "none" : "lax",
+        secure: config.ENVIRONMENT === "production" ? true : false
     }
 }))
 

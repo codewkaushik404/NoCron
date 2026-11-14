@@ -15,7 +15,6 @@ router.post("/catch/:userId/:workflowId", asyncHandler(async (req: Request, res:
     if (typeof userId !== "string") throw new ApiError(400, "Invalid userId", null);
     if (typeof workflowId !== "string") throw new ApiError(400, "Invalid workflowId", null);
     
-
     const workflow = await prisma.workflow.findUnique({
         where: {
             id: workflowId,

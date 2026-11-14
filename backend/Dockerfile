@@ -11,6 +11,7 @@ RUN npx prisma generate
 RUN npm run build
 
 FROM node:24-alpine AS runtime
+RUN apk add --no-cache ca-certificates openssl
 
 WORKDIR /app
 ENV NODE_ENV=production

@@ -35,8 +35,8 @@ services:
     build: ./
     image: backend
     container_name: nocron-migration
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     command: npx prisma migrate deploy
     depends_on:
       postgres:
@@ -51,6 +51,8 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     restart: unless-stopped
     depends_on:
       migration:
@@ -64,6 +66,8 @@ services:
     container_name: nocron-sweeper
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     command: ["npm", "run", "start:sweeper"]
     restart: unless-stopped
     depends_on:
@@ -78,6 +82,8 @@ services:
     container_name: nocron-worker
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     command: ["npm", "run", "start:worker"]
     restart: unless-stopped
     depends_on:

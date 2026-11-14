@@ -6,16 +6,6 @@ const adapter = new PrismaPg({
   connectionString: config.DATABASE_URL,
 });
 
-const url = new URL(config.DATABASE_URL);
-
-console.log("DATABASE CONNECTION:", {
-  host: url.hostname,
-  port: url.port,
-  passwordLength: decodeURIComponent(url.password),
-  username: url.username,
-  database: url.pathname,
-});
-
 const prisma = new PrismaClient({
   adapter
 });

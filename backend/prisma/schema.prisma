@@ -65,6 +65,8 @@ model Trigger {
   config     Json     @default("{}")
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([trigger_type_id])
 }
 
 model AvailableAction {
@@ -92,6 +94,7 @@ model Action {
   updated_at DateTime @updatedAt
 
   @@unique([workflow_id, order])
+  @@index([action_type_id])
 }
 
 model Workflow {
@@ -109,6 +112,8 @@ model Workflow {
   trigger    Trigger?
   actions    Action[]
   executions Execution[]
+
+  @@index([user_id, updated_at(sort: Desc)])
 }
 
 model Execution {
@@ -122,6 +127,8 @@ model Execution {
   updated_at DateTime        @updatedAt
 
   execution_outbox ExecutionOutbox?
+
+  @@index([workflow_id])
 }
 
 model ExecutionOutbox {
